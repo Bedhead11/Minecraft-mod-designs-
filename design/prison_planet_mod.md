@@ -28,6 +28,14 @@ The planet itself is the prison. The environment is the jailer. Players must und
 | Ultrawarm | No (custom hazard system handles heat and cold) |
 | Natural spawning | Yes, time-gated |
 
+### Portal
+
+- **Frame material**: Netherite Blocks
+- **Activation**: Flint and Steel (same mechanic as Nether portal)
+- **Shape**: Rectangular frame, same construction rules as a Nether portal
+- **Entry**: Stepping into the lit portal transports the player to `the_condemned`
+- **Exit**: Player-built only — players must construct an exit portal inside the dimension using Netherite Blocks and Flint and Steel. Some generated structures may contain pre-built exit portals.
+
 ---
 
 ## 3. Extended Day/Night Cycle
@@ -48,6 +56,7 @@ Each phase is exactly **48,000 ticks** (2 standard Minecraft days).
 - A `ServerTickEvent` increments `cycleTick` and calls `ServerLevel.setDayTime(cycleTick / 8)` to drive the vanilla sky renderer at ⅛ speed (one visual sky rotation = 192,000 ticks).
 - Phase detection: `phase = cycleTick / 48000` (integer division, mod 4) → 0=DAY, 1=SUNSET, 2=NIGHT, 3=SUNRISE.
 - Phase transitions are detected by comparing `prevPhase != currentPhase` — triggers the `PhaseTransitionEvent` (custom event) which initialises batch block updates.
+- **The server phase clock is authoritative.** There is no per-player phase state. All players in the dimension experience the same phase at the same time. Clients receive the current phase via sync packet on dimension entry and on each phase transition.
 - Sky color overrides, fog color, and cloud rendering handled client-side via a custom `DimensionSpecialEffects` subclass.
 
 ---
@@ -92,7 +101,7 @@ If either condition is not met, no player hazard or block effect applies at that
 - Flammable blocks (matching `minecraft:igniteable_by_lava` tag or similar) with sky light ≥ 7 and Y ≥ 50 have a chance to spontaneously ignite during Day.
 - Implemented via `RandomTickEvent`: on tick, roll chance (configurable, default ~5% per random tick). If pass, place a fire block on top of or adjacent to the flammable block.
 - This does NOT use vanilla fire spread — only direct solar ignition. Once lit, vanilla fire spread handles the rest.
-- Structures built from flammable materials that are roofed are safe. Open-air wood structures will burn.
+- Applies to **all** flammable blocks with sky exposure, including those placed by players. Open-air construction using flammable materials will burn during the Day phase.
 
 ---
 
@@ -158,7 +167,7 @@ If either condition is not met, no player hazard or block effect applies at that
 - `SnowMeltHandler` runs on `ServerTickEvent`. Every 20 ticks, for each loaded chunk, scan columns for snow layers and snow blocks at the top of the snow stack.
 - Remove one snow layer (or decrement `LAYERS` by 1) per column per scan. Snow melts from the top down.
 - Rate: ~1 layer per 8 seconds at start of Sunrise, accelerating to 1 layer per 3 seconds by mid-Sunrise. The goal is that all accumulated snow is fully gone before Day begins.
-- **Balance check**: If the dimension hasn't been visited in multiple cycles, a large amount of snow may have accumulated. A bulk-clear pass fires on `PhaseTransitionEvent` (Sunrise begin) for chunks far from players.
+- **Snow persists between visits.** Accumulated snow is saved with the chunk and does not reset on load. A chunk that was buried at the end of Night will still be buried when next loaded. Snow only removes during an active Sunrise phase.
 
 **Ice → Water Reversion**
 - `minecraft:packed_ice` and `minecraft:ice` blocks (those created by the Night system) revert to `CondemnedWaterBlock` on the start of Sunrise.
@@ -191,6 +200,8 @@ All structures use Jigsaw-based generation where possible for modular reuse of p
 
 Structure design principle: **roof = safety**. Structures should clearly communicate whether they offer shelter through their visual design.
 
+Some structures may contain pre-built exit portals (Netherite Block frame, already lit). This is a per-structure design decision to be made during structure creation — not all structures will have one.
+
 ---
 
 ## 6. Custom Enchantments
@@ -213,7 +224,7 @@ Enchantments are fully data-driven (1.21 JSON format under `data/prisonplanet/en
 | 10 | **Scavenger's Eye** | Helmet | Fortune-equivalent bonus on loot chest rolls in the dimension. |
 | 11 | **Deathless** | Chestplate | On lethal damage, triggers 3-second invincibility instead of death. 10-minute cooldown. One active save at a time. |
 | 12 | **Overseer's Dominion** | Any armor piece | Legendary. Full immunity to both solar burn and deep freeze. Cannot coexist with Ash Walker or Frost Ward on the same armor set. Extremely rare. |
-| 13 | **Inbuilt Afterburner** | Elytra | While gliding (`isFallFlying()`), pressing sprint applies a directional velocity burst. Level 1: ~50% firework power, 5s cooldown. Level 2: ~75% power, 3s cooldown. Level 3: ~100% power, 1.5s cooldown. No item consumed, no explosion — purely velocity. Cooldown tracked per-player via `DataAttachment`. Compatible with Mending and Unbreaking. Does not prevent simultaneous firework use. |
+| 13 | **Inbuilt Afterburner** | Elytra only | While gliding (`isFallFlying()`), pressing sprint applies a directional velocity burst. Level 1: ~50% firework power, 5s cooldown. Level 2: ~75% power, 3s cooldown. Level 3: ~100% power, 1.5s cooldown. No item consumed, no explosion — purely velocity. Works in all dimensions. Cooldown tracked per-player via `DataAttachment`. Compatible with Mending and Unbreaking. Does not prevent simultaneous firework use. |
 
 ---
 
@@ -252,7 +263,7 @@ Enchantments are fully data-driven (1.21 JSON format under `data/prisonplanet/en
 | Flaming arrow / fire charge hit | 5 per hit to the piece in that hit slot |
 | Fire Aspect melee hit | 3 per hit to the piece in that hit slot |
 
-**Design Intent**: Permafrost Armor directly counters the Day phase hazard but offers zero protection against Night freeze — a player wearing the full set can walk through the sun unharmed but will still freeze to death if they don't find heat at Night. It also creates a resource-pressure mechanic: players who use the armor aggressively near molten stone will need to repair it regularly. The Mending Flame block is the primary repair mechanism for this armor.
+**Design Intent**: Permafrost Armor is heat-resistance only. The full set counters the Day phase hazard entirely but offers zero protection against Night freeze — intentional asymmetry. A player wearing the full set can walk through the sun unharmed but will still freeze to death if they don't find heat at Night. It also creates a resource-pressure mechanic: players who use the armor aggressively near molten stone will need to repair it regularly. The Mending Flame block is the primary repair mechanism for this armor.
 
 **Repairability**: Via Mending Flame (primary), or anvil with Glacial Shards. Standard Mending enchantment also works.
 
@@ -385,9 +396,10 @@ A supernatural repair forge. Visually: a blue-white flame (closer to soul fire i
 - Chipped Anvil → Anvil: 750 MP
 
 **Curse removal** (when Purify toggle is ON):
-- Fuel cost is multiplied by 3× (minimum 500 MP even if item is at full durability)
+- No extra fuel cost beyond what is needed to repair the item's durability
 - All enchantments matching `minecraft:curse` tag are stripped on completion
 - The player must manually enable Purify — curses are never removed without consent
+- **Open question**: If an item is already at full durability, purification would cost 0 fuel. Decide whether a minimum fuel cost applies in this case.
 
 **Interaction with Permafrost Armor**: The primary intended repair method for Permafrost Armor. Glacial Shards can also be used as a repair material in the fuel slot (treated as 300 MP per shard) specifically for armor — this is a secondary use of the shard material beyond crafting.
 
@@ -575,13 +587,21 @@ resources/data/prisonplanet/
 
 ## 14. Open Design Questions
 
-1. **Dimension access**: Portal structure, crafted key, specific ritual, or boss drop?
-2. **Dimension exit**: Player-built exit portal, or fixed exits inside structures only?
-3. **The Overseer as boss**: Full multi-phase boss fight, or rare elite patrol mob?
-4. **Biome distribution**: Should the Warden's Citadel biome be separate from Void Cliffs, or generated within it?
-5. **Multiplayer sync**: Cycle clock is per-level (all players share the same phase). Is this the desired behavior for servers?
-6. **Snow persistence**: Should accumulated snow persist between visits (world save), or reset at chunk load? Persistence is more immersive but requires careful balance.
-7. **Flammable block scope**: Should the solar ignition system affect structures (potentially destroying them over time), or only natural terrain blocks?
-8. **Permafrost Armor — Night interaction**: The armor provides no freeze protection. Should the full set provide any minor cold resistance, or is the hard asymmetry (Day armor vs. Night vulnerability) intentional?
-9. **Mending Flame — curse removal cost**: Is a 3× fuel multiplier the right balance for curse removal, or should it be a flat rare-material cost instead?
-10. **Afterburner — outside-dimension use**: Should the Inbuilt Afterburner enchantment work in all dimensions, or only in `the_condemned`?
+### Resolved
+| # | Question | Decision |
+|---|---|---|
+| 1 | Dimension access method | Netherite Block frame, lit with Flint and Steel (Nether portal mechanic) |
+| 2 | Dimension exit | Player-built portals; some generated structures may contain pre-built exits |
+| 5 | Multiplayer phase sync | Server clock is authoritative; no per-player desync anywhere |
+| 6 | Snow persistence | Snow persists in world save; only removed during active Sunrise phase |
+| 7 | Flammable block scope | All flammable blocks, including player-placed, are subject to solar ignition |
+| 8 | Permafrost Armor — Night | Heat resistance only is intentional; no cold protection |
+| 9 | Mending Flame — curse removal cost | No extra cost; removed at same fuel cost as normal repair |
+| 10 | Afterburner — dimension scope | Works in all dimensions; bound to the Elytra item |
+
+### Deferred (no planning yet)
+- **Mob design** (The Overseer and all custom mobs)
+- **Biome distribution** (Warden's Citadel placement, biome layouts)
+
+### Still Open
+1. **Mending Flame — zero-cost edge case**: If an item is already at full durability, enabling Purify would cost 0 fuel. Should there be a minimum fuel requirement for curse removal on a non-damaged item?
