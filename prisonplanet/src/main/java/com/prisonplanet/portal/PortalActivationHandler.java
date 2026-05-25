@@ -45,7 +45,10 @@ public final class PortalActivationHandler {
         if (!spawned) return;
 
         if (item == Items.FLINT_AND_STEEL) {
-            stack.hurtAndBreak(1, player, hand);
+            stack.hurtAndBreak(1, player,
+                hand == net.minecraft.world.InteractionHand.MAIN_HAND
+                    ? net.minecraft.world.entity.EquipmentSlot.MAINHAND
+                    : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
         } else {
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);

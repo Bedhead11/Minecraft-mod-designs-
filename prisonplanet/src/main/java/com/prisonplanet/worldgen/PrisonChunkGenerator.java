@@ -11,15 +11,17 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.Blender;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import java.util.List;
@@ -88,10 +90,10 @@ public class PrisonChunkGenerator extends ChunkGenerator {
 
     @Override
     public void applyCarvers(
-            net.minecraft.world.level.WorldGenLevel level,
+            WorldGenRegion level,
             long seed,
             RandomState randomState,
-            net.minecraft.world.level.biome.BiomeManager biomeManager,
+            BiomeManager biomeManager,
             StructureManager structureManager,
             ChunkAccess chunk,
             GenerationStep.Carving step) {
@@ -100,7 +102,7 @@ public class PrisonChunkGenerator extends ChunkGenerator {
 
     @Override
     public void buildSurface(
-            net.minecraft.world.level.WorldGenLevel level,
+            WorldGenRegion level,
             StructureManager structureManager,
             RandomState randomState,
             ChunkAccess chunk) {
@@ -108,7 +110,7 @@ public class PrisonChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void spawnOriginalMobs(net.minecraft.world.level.WorldGenLevel level) {
+    public void spawnOriginalMobs(WorldGenRegion level) {
         // No mob spawning during world generation
     }
 
@@ -161,7 +163,7 @@ public class PrisonChunkGenerator extends ChunkGenerator {
 
     @Override
     public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(
-            net.minecraft.world.level.biome.Biome biome,
+            net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> biome,
             StructureManager structureManager,
             MobCategory category,
             BlockPos pos) {

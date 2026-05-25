@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingEntityTickEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import java.util.Set;
 
@@ -53,7 +53,7 @@ public final class EnvironmentalHazardHandler {
     private EnvironmentalHazardHandler() {}
 
     @SubscribeEvent
-    public static void onLivingTick(LivingEntityTickEvent event) {
+    public static void onLivingTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         var level = player.level();
@@ -81,7 +81,7 @@ public final class EnvironmentalHazardHandler {
         if (player.hasEffect(MobEffects.FIRE_RESISTANCE)) return;
         // Set on fire every 40 ticks
         if (player.tickCount % 40 == 0) {
-            player.setSecondsOnFire(3);
+            player.igniteForSeconds(3);
         }
     }
 
