@@ -183,24 +183,174 @@ If either condition is not met, no player hazard or block effect applies at that
 
 ---
 
-## 5. Structures
+## 5. World Generation & Structures
 
-All structures use Jigsaw-based generation where possible for modular reuse of pieces.
+### 5.1 Core Philosophy
 
-| Structure | Size | Rarity | Description |
+`the_condemned` is not a landscape with structures in it. **The world IS the structure.** There is no natural terrain, no sky-open wilderness, no horizon of grass and trees. Every block above the deep catacombs is part of a single continuous megastructure — a prison complex of incomprehensible scale that extends to the world border in all directions and has no visible terminus.
+
+The aesthetic target: Doom's demon-industrial architecture crossed with Mad God's grotesque machinery and Crematoria's overwhelming sense of inescapable scale. The player should feel they are deep inside something vast, not exploring something built.
+
+**What the world contains:**
+- A near-solid mass of prison stone from the surface down to the catacomb threshold
+- Carved out from within: rooms, corridors, silos, vaults, shafts — all negative space inside the mass
+- The "surface" is the broken, partially exposed top of the megastructure — not open land
+- The deep layer (below Y=0) is where the structure gives way to the natural Catacomb Depths
+
+**What the world does not contain:**
+- Open landscapes
+- Natural terrain features (mountains, valleys, rivers)
+- Sky visible from ground level except through deliberate openings (silo tops, courtyards, collapsed sections)
+
+---
+
+### 5.2 Vertical Layer System
+
+The Y axis is divided into functional strata. These are generation zones, not biomes.
+
+| Stratum | Y Range | Character |
+|---|---|---|
+| **Surface** | Y=100 – Y=130 | The broken top of the megastructure. Irregular, partially open to sky. Exposed courtyard sections, silo openings, collapsed roofing. Solar and freeze hazards fully active in open sections. |
+| **Upper Decks** | Y=50 – Y=100 | Dense multi-floor prison structure. Most named structures exist here. Mix of roofed (safe) and silo-open (hazardous above Y=50) sections. |
+| **Lower Decks** | Y=0 – Y=50 | Deeper, older, more damaged sections. Heavier industrial character. Hazards do not penetrate here (below Y=50 threshold). Dimly lit. |
+| **Catacomb Depths** | Y=-64 – Y=0 | The structure gives way to natural carved rock. Underground biome. Immune to all surface hazards. Glacial Shards ore generates here. |
+
+**Floor height**: Each "deck" within the Upper and Lower strata is approximately 5–8 blocks tall (ceiling height varies by room type). Decks are not rigidly aligned — offset floors, partial mezzanines, and collapsing ceilings are intentional.
+
+---
+
+### 5.3 Technical Generation Approach
+
+**Substrate**: The chunk generator fills the world with solid prison stone (the dimension's primary block) as base terrain. This is a near-uniform fill with minor noise variation — the structure's mass, not natural landscape. Noise variation creates slight density irregularities (small natural fissures, bulging walls) that prevent the fill from looking algorithmic.
+
+**Carving via Jigsaw structures**: Rooms, corridors, and shafts are placed as Jigsaw structures inside the solid substrate. They carve out (replace the fill with air and structure blocks) rather than building upward. Because the substrate is solid, Jigsaw pieces that fail to connect simply remain walled off — dead ends are a feature.
+
+**Structure density**: Jigsaw placement is frequent — structures are packed close enough that the carved space forms a mostly-continuous network. Gaps of uncarved substrate between structure pieces represent collapsed or sealed sections.
+
+**Multiple root structures**: Rather than a single Jigsaw tree generating from one root, multiple independent root structures are seeded at different XZ positions and Y-levels across each region. This creates overlapping networks that feel organically stacked rather than generated from a single point.
+
+---
+
+### 5.4 Tunnel Catalog
+
+Tunnels are the connective tissue of the megastructure. They vary in cross-section and function. All dimensions are interior clear space (wall blocks are additional).
+
+| Tunnel Type | Cross-section (W×H) | Character | Use |
 |---|---|---|---|
-| **The Warden's Citadel** | Massive | Very rare | Central fortress dominating the biome. Multi-floor dungeon, boss room, unique loot vault. Fully roofed — safe from all hazards inside. |
-| **Condemned Prison Complex** | Large | Rare | Multi-wing cell block, guard rooms, execution hall. Primary source of enchanted books. Partially roofed. |
-| **Disposal Pit** | Medium | Uncommon | Open crater with processing machinery, mob spawners, salvage loot. Mostly exposed — dangerous during Day/Night. |
-| **Guard Tower** | Small | Common | Lone towers scattered across the landscape. Stone construction — roof provides safety. Contains a Jailer villager. |
-| **Underground Catacomb** | Medium | Uncommon | Entirely below Y=50 — completely immune to all hazards. Subterranean network with buried loot. |
-| **Execution Grounds** | Medium | Rare | Open arena, pillory structures, scattered bones. Entirely exposed — hazardous, high-reward. |
-| **Condemned's Hovel** | Tiny | Common | Survivor shanty shelters. Roofed, modest loot, sometimes a Prisoner villager. Intended as emergency refuge. |
-| **Ritual Site** | Small | Uncommon | Cultist circle, altar, strange runes. Open-air but the ritual altar itself is shaded. |
+| **Crawl Passage** | 1×1.5 (stepped) | Maintenance access, barely passable | Connecting walls between areas, hidden routes |
+| **Standard Corridor** | 2×3 | Primary pedestrian passage | Cell block access, room-to-room connections |
+| **Wide Corridor** | 4×4 | Main thoroughfares | High-traffic routes between districts |
+| **Industrial Tunnel** | 6×6 | Heavy machinery clearance | Processing areas, between major chambers |
+| **Grand Tunnel** | 10×20 | Massive — spans multiple floors | Primary arteries of the structure; overwhelmingly large; can feel like an underground road |
 
-Structure design principle: **roof = safety**. Structures should clearly communicate whether they offer shelter through their visual design.
+Grand Tunnels run both horizontally and (occasionally) diagonally through the structure. Seeing one unexpectedly from a side passage is intended to create a sense of scale disorientation. The 20-block height of a Grand Tunnel spans approximately 2.5 deck heights — rooms and corridors from adjacent decks may open directly into the tunnel wall via grated openings or collapsed sections.
 
-Some structures may contain pre-built exit portals (Netherite Block frame, already lit). This is a per-structure design decision to be made during structure creation — not all structures will have one.
+Tunnel walls use a consistent structural block palette (prison stone bricks, reinforced variants, iron bars as grates). Variation in wear/damage level is applied per-section — some tunnels are intact, some have partial collapses with debris.
+
+---
+
+### 5.5 Silo System
+
+Silos are vertical shafts that penetrate multiple decks. They are the primary means of vertical movement through the structure and one of the most visually distinctive features.
+
+| Silo Type | Diameter | Depth | Notes |
+|---|---|---|---|
+| **Utility Shaft** | 3×3 | 1–2 decks | Cramped vertical access, may have iron bar ladder frames |
+| **Standard Silo** | 6×6 | 2–4 decks | Common vertical connector; ring walkways at each deck level |
+| **Processing Silo** | 10×10 | 3–5 decks | Larger industrial shafts; machinery remnants on walls |
+| **Deep Drop Silo** | 5–15 wide | Full stratum height | Rare; plunges from near-surface to Lower Decks or deeper; viewing one from the top is vertigo-inducing |
+
+Silo interiors are not empty — they have:
+- Ring walkways at each deck intersection (partial, often broken)
+- Wall-mounted machinery, piping stubs, grated openings from adjacent corridors
+- Lava vents or ice deposits depending on the silo's age and condition
+- Occasional debris at the bottom
+
+Deep Drop Silos are open to the sky at the top (if they reach the Surface stratum) — this means they are active hazard zones during Day (solar) and Night (snow accumulation into the shaft).
+
+---
+
+### 5.6 Room Catalog
+
+Rooms are terminus or junction nodes in the Jigsaw network. They vary in function and size. Each room type has multiple Jigsaw piece variants to prevent repetition.
+
+| Room Type | Interior Size (W×D×H) | Description |
+|---|---|---|
+| **Cell Row** | 12×4×3 | A single row of prison cells along one wall, standard-ceiling corridor facing them. Multiple variants: occupied, destroyed, open. |
+| **Cell Block** | 20×20×5 | Multi-row cell arrangement, open central floor, guard walkway above. |
+| **Bunker Room** | 5×5×3 to 8×8×4 | Small enclosed rooms. Intended as defensive shelters or storage. Heavy door frames, reinforced walls. |
+| **Guard Station** | 4×4×3 | Fortified booth at corridor junctions. Window openings (iron bars) overlooking the passage. |
+| **Processing Chamber** | 12×12×6 | Mid-scale industrial room. Machinery (decorative), drain channels, ceiling hooks, chains. |
+| **Holding Bay** | 8×16×8 | Long, high-ceilinged room. Rows of wall brackets suggest mass containment. Loot and spawner potential. |
+| **Engine Room** | 16×16×10 | Large machinery chamber. Multi-tier catwalks, large central structure (non-functional machinery block arrangement). |
+| **Vault Chamber** | 8×8×6 | Reinforced door frame (iron doors), sealed feel. Loot concentration. Rare. |
+| **Collapsed Section** | Varies | Deliberately ruined — ceiling partially caved in, debris piles, broken wall openings into adjacent spaces. |
+| **Courtyard** | 10×10 to 20×20, open top | Enclosed on all sides by walls, no roof. Open to sky. Solar/freeze hazard active. May contain remains of structures within. |
+
+---
+
+### 5.7 Surface Generation
+
+The Surface stratum (Y=100–130) is where the megastructure's roof would be — but it is broken, irregular, and partially collapsed. It is not a flat skyline.
+
+**What the surface looks like:**
+- Uneven tops of walls and roofs at different heights — no consistent "ground level"
+- Open silo tops breaking through, revealed as dark shafts going down
+- Courtyard sections where the roof is entirely absent (hazard zones)
+- Collapsed sections where the roof has fallen into the floor below, creating rubble-filled ramps down
+- Intact roofed sections where players can walk on top of the structure (solid, protected from solar hazard by the structure below their feet — but the top surface itself is exposed)
+- Occasional tall remnants (broken towers, wall stubs) rising above the average roof height
+
+The surface is the most hazardous area (full solar burn during Day, full freeze and snow burial during Night) but is the entry point from portals and the location of above-ground landmarks.
+
+---
+
+### 5.8 Jigsaw Piece Architecture
+
+The Jigsaw system assembles the megastructure from categorised piece pools. Connectors between pieces are typed to enforce size compatibility.
+
+**Connector types (Jigsaw "block name" values):**
+- `condemned:horizontal/crawl` — 1×1.5 passage connection
+- `condemned:horizontal/standard` — 2×3 corridor connection
+- `condemned:horizontal/wide` — 4×4 corridor connection
+- `condemned:horizontal/industrial` — 6×6 tunnel connection
+- `condemned:horizontal/grand` — 10×20 tunnel connection
+- `condemned:vertical/shaft_up` — silo upward connection
+- `condemned:vertical/shaft_down` — silo downward connection
+- `condemned:room/entry` — room doorway connection (bidirectional)
+
+**Piece pools:**
+| Pool | Contains |
+|---|---|
+| `condemned:surface_roots` | Surface-level root structures — silo openings, courtyard rims, rooftop sections |
+| `condemned:upper_rooms` | All room types valid for Upper Decks |
+| `condemned:lower_rooms` | Room types for Lower Decks (heavier damage, older character) |
+| `condemned:corridors_standard` | Standard and wide corridor pieces with junction variants |
+| `condemned:corridors_grand` | Grand Tunnel sections, junctions, and branch openings |
+| `condemned:silos` | Silo shaft sections, ring walkway variants, top-cap and bottom-cap pieces |
+| `condemned:transitions` | Pieces that bridge between Jigsaw connector types (e.g. standard corridor widening to industrial) |
+| `condemned:terminators` | Dead-end caps — collapsed walls, sealed doors, rubble fills |
+
+---
+
+### 5.9 Named Landmark Structures
+
+Within the procedural megastructure, landmark structures exist as large hand-designed Jigsaw roots that override the standard generation in their region. They are placed by a separate `StructureSet` with controlled spacing.
+
+These are districtlevel features — the procedural generation fills in around and between them, with corridors connecting into their Jigsaw entry points.
+
+| Structure | Stratum | Description |
+|---|---|---|
+| **The Warden's Citadel** | Surface + Upper Decks | The largest landmark. A hand-designed multi-floor fortress with a distinct silhouette visible at the surface. Fully roofed interior. Boss room in the deepest level. |
+| **Condemned Prison Complex** | Upper Decks | Multi-wing cell block district. Largest concentration of cells. Primary enchanted book loot source. Partially roofed — some wings exposed. |
+| **Disposal Pit** | Surface + Upper Decks | An open-top processing area. Silos leading to machinery below. Hazardous (exposed). |
+| **Guard Tower** | Surface | Surface-level towers. Structural remnants rising above the roof. Stone construction, roofed at the top. |
+| **Underground Catacomb** | Catacomb Depths | Entirely below Y=0. A natural-feeling cavern network embedded in the base of the structure. Hazard-immune. |
+| **Execution Grounds** | Surface | A large open-top courtyard with constructed features inside (pillory, arena markers). Fully exposed. |
+| **Condemned's Hovel** | Surface / Upper Decks | Small refuge structures in collapsed surface sections — built into rubble rather than the prison proper. |
+| **Ritual Site** | Upper Decks | Mid-structure location. A carved chamber with ritual markings. Not an open-top structure. |
+
+Structure design principle: **roof = safety**. Structures must clearly communicate shelter status through visual design. Pre-built exit portals may be included in select landmarks — a per-structure decision made during NBT design.
 
 ---
 
@@ -474,10 +624,12 @@ prisonplanet/
 │
 ├── structures/
 │   ├── ModStructureTypes.java
-│   └── pieces/
+│   └── pieces/                               — Landmark structure piece classes (if non-Jigsaw)
 │
 ├── worldgen/
-│   └── ModWorldGenProvider.java
+│   ├── ModWorldGenProvider.java              — DatapackBuiltinEntriesProvider bootstrap
+│   ├── PrisonChunkGenerator.java            — Custom ChunkGenerator: fills substrate, no natural terrain
+│   └── PrisonCarverHelper.java              — Utility: substrate fill noise + minor irregularity variation
 │
 └── events/
     ├── SpawnControlHandler.java
@@ -499,13 +651,22 @@ resources/data/prisonplanet/
 ├── loot_table/
 │   └── chests/ [per-structure loot tables]
 ├── worldgen/
-│   ├── biome/ [5 biome JSONs]
+│   ├── biome/ [biome JSONs — count TBD]
 │   ├── noise_settings/
-│   │   └── the_condemned.json
-│   ├── structure/ [8 structure JSONs]
+│   │   └── the_condemned.json               — Near-solid fill settings
+│   ├── structure/ [landmark structure JSONs]
 │   ├── structure_set/
-│   │   └── the_condemned_structures.json
-│   └── template_pool/ [jigsaw pool JSONs]
+│   │   ├── condemned_landmarks.json         — Landmark spacing/placement
+│   │   └── condemned_procedural.json        — Procedural Jigsaw root density
+│   └── template_pool/
+│       ├── surface_roots/
+│       ├── upper_rooms/
+│       ├── lower_rooms/
+│       ├── corridors_standard/
+│       ├── corridors_grand/
+│       ├── silos/
+│       ├── transitions/
+│       └── terminators/
 └── tags/
     ├── blocks/
     │   ├── heat_sources.json              — Blocks that prevent Night freeze
@@ -522,7 +683,8 @@ resources/data/prisonplanet/
 ### Phase 1 — Core Dimension (Foundation)
 - [ ] Mod scaffolding (NeoForge 1.21.1 gradle setup, main class, mods.toml)
 - [ ] Dimension type + dimension JSON registration
-- [ ] Basic noise terrain (Ash Flats biome, placeholder blocks)
+- [ ] `PrisonChunkGenerator` — solid substrate fill with minor noise variation (placeholder block)
+- [ ] Basic stratum boundaries (Surface / Upper / Lower / Catacomb Y ranges enforced)
 - [ ] `PrisonPlanetSavedData` + `CycleTickHandler` — time system functional
 - [ ] `CyclePhase` enum + `PhaseTransitionEvent`
 - [ ] Debug HUD overlay (current phase, cycleTick, sky light at foot position)
@@ -543,13 +705,34 @@ resources/data/prisonplanet/
 - [ ] `SnowMeltHandler` (Sunrise snow removal)
 - [ ] Chunk catch-up pass on load (blocks sync to current phase)
 
-### Phase 4 — Structures
-- [ ] Custom blocks (Ash Stone family, all 7 job site blocks)
-- [ ] 2–3 starter structures with loot tables (Guard Tower, Condemned's Hovel, Disposal Pit)
-- [ ] Remaining 5 structures
-- [ ] Jigsaw pools for modular prison complex pieces
+### Phase 4 — World Generation (Procedural)
+- [ ] Custom blocks (prison stone family, all structural variants)
+- [ ] Jigsaw connector types defined (`condemned:horizontal/*`, `condemned:vertical/*`, `condemned:room/entry`)
+- [ ] **Terminators pool**: dead-end cap pieces (collapsed wall, sealed door, rubble)
+- [ ] **Standard corridors pool**: 2×3 and 4×4 corridor pieces with junction variants
+- [ ] **Standard rooms pool**: Bunker Room, Cell Row, Guard Station pieces (multiple variants each)
+- [ ] First playable pass: solid world carved by standard corridors + bunker rooms; verify connectivity feel
+- [ ] **Silo pool**: utility shaft and standard silo shaft sections, ring walkway variants, top/bottom caps
+- [ ] **Grand Tunnel pool**: 10×20 sections, junctions, branch openings into standard corridors
+- [ ] **Large rooms pool**: Cell Block, Processing Chamber, Holding Bay, Engine Room, Vault Chamber
+- [ ] **Surface roots pool**: silo openings, courtyard rims, rooftop surface pieces, collapsed sections
+- [ ] **Transitions pool**: pieces bridging connector size differences
+- [ ] Multi-root seeding: separate root structures at different XZ positions and Y-levels per region
+- [ ] All 7 villager job site blocks
 
-### Phase 4.5 — Permafrost Armor & Mending Flame
+### Phase 5 — Landmark Structures
+- [ ] Guard Tower NBT + Jigsaw entry points
+- [ ] Condemned's Hovel NBT
+- [ ] Disposal Pit NBT
+- [ ] Condemned Prison Complex NBT (modular wings via Jigsaw sub-pool)
+- [ ] Ritual Site NBT
+- [ ] Execution Grounds NBT
+- [ ] Underground Catacomb NBT (Catacomb Depths stratum)
+- [ ] The Warden's Citadel NBT (largest; designed last)
+- [ ] Loot tables for all landmark structures
+- [ ] `condemned_landmarks` StructureSet with spacing/exclusion zone config
+
+### Phase 6 — Permafrost Armor & Mending Flame
 - [ ] `GlacialShardItem` + ore generation in Catacomb Depths biome (below Y=50)
 - [ ] `PermafrostArmorMaterial` + `PermafrostArmorItem` (4-piece set)
 - [ ] `PermafrostArmorTickHandler` — per-tick durability damage from lava/fire/molten stone
@@ -559,24 +742,24 @@ resources/data/prisonplanet/
 - [ ] Anvil repair (Damaged → Chipped → normal) in menu
 - [ ] Purify Curses toggle — fuel cost multiplier + curse stripping on completion
 
-### Phase 5 — Enchantments
+### Phase 7 — Enchantments
 - [ ] All 13 enchantment JSON definitions
 - [ ] Custom enchantment effect components for: Condemned's Resolve, Shackle Break, Deathless, Overseer's Dominion
 - [ ] Inbuilt Afterburner: `AfterburnerEnchantment` registration + `SprintFlyHandler` + player `DataAttachment` for cooldown
 - [ ] Loot table integration (books distributed across structure chests by rarity)
 
-### Phase 6 — Villagers & Mobs
+### Phase 8 — Villagers & Mobs
 - [ ] 4 villager types (textures + registration)
 - [ ] 7 villager professions + job site blocks
 - [ ] Trade definitions per profession + leveling
 - [ ] 12 custom mob entity classes + AI goals + placeholder textures
 
-### Phase 7 — Mob Spawning Schedule
+### Phase 9 — Mob Spawning Schedule
 - [ ] Entity type tags per phase
 - [ ] `SpawnControlHandler` hooked into `MobSpawnEvent`
 - [ ] Biome-specific spawn weight tuning per phase
 
-### Phase 8 — Polish & Balance
+### Phase 10 — Polish & Balance
 - [ ] All 5 biomes with unique terrain
 - [ ] Sound events per phase transition (ambient, tension build)
 - [ ] Particle effects (ash during Day, snow/frost during Night, steam during Sunset)
