@@ -1,0 +1,10 @@
+{
+  "type": "prisonplanet:the_condemned_type",
+  "generator": {
+    "type": "prisonplanet:prison",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:the_void"
+    }
+  }
+}

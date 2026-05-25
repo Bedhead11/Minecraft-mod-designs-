@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "prisonplanet:block/condemned_portal_x"
+    },
+    "axis=z": {
+      "model": "prisonplanet:block/condemned_portal_z"
+    }
+  }
+}

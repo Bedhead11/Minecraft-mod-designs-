@@ -1,0 +1,25 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+
+[[mods]]
+    modId = "prisonplanet"
+    version = "0.1.0"
+    displayName = "Prison Planet"
+    description = '''
+A custom dimension mod featuring The Condemned — a harsh prison planet dimension.
+'''
+
+[[dependencies.prisonplanet]]
+    modId = "neoforge"
+    type = "required"
+    versionRange = "[21.1,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.prisonplanet]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "[1.21.1,1.22)"
+    ordering = "NONE"
+    side = "BOTH"
