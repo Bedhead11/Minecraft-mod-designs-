@@ -213,10 +213,52 @@ Enchantments are fully data-driven (1.21 JSON format under `data/prisonplanet/en
 | 10 | **Scavenger's Eye** | Helmet | Fortune-equivalent bonus on loot chest rolls in the dimension. |
 | 11 | **Deathless** | Chestplate | On lethal damage, triggers 3-second invincibility instead of death. 10-minute cooldown. One active save at a time. |
 | 12 | **Overseer's Dominion** | Any armor piece | Legendary. Full immunity to both solar burn and deep freeze. Cannot coexist with Ash Walker or Frost Ward on the same armor set. Extremely rare. |
+| 13 | **Inbuilt Afterburner** | Elytra | While gliding (`isFallFlying()`), pressing sprint applies a directional velocity burst. Level 1: ~50% firework power, 5s cooldown. Level 2: ~75% power, 3s cooldown. Level 3: ~100% power, 1.5s cooldown. No item consumed, no explosion — purely velocity. Cooldown tracked per-player via `DataAttachment`. Compatible with Mending and Unbreaking. Does not prevent simultaneous firework use. |
 
 ---
 
-## 7. Villager Types & Professions
+## 7. Custom Armor
+
+### Permafrost Armor Set
+
+**Concept**: Armor forged from Glacial Shards — a crystalline mineral that forms exclusively in the Catacomb Depths biome below Y=50. The sustained cold of Night phases, trapped and compressed underground over geological time, has created mineral ice that doesn't melt even at the surface. Paradoxically, the coldness it stores is so extreme that it insulates completely against external heat.
+
+**Material — Glacial Shard**:
+- Ore vein in the Catacomb Depths biome, below Y=50
+- Requires diamond-tier pickaxe or better
+- Cannot be smelted or heated — heat causes it to shatter into powder (invalid for crafting)
+- Drops 1–3 shards per ore block; Fortune applies
+
+**Set Pieces**: Helmet, Chestplate, Leggings, Boots (standard 4-piece set)
+
+**Defense**: Comparable to iron armor in base armor value — the specialization is in its unique properties, not raw defense.
+
+**Incremental Effects** (cumulative by pieces worn):
+
+| Pieces | Effect |
+|---|---|
+| 1 piece | Permanent Fire Resistance I while the piece is equipped |
+| 2 pieces | Solar burn hazard damage reduced by 50% |
+| 3 pieces | Solar burn hazard fully negated (sun immunity) |
+| 4 pieces (full set) | Lava contact deals 0 HP damage. Instead, lava deals durability damage to armor pieces at the rates below. |
+
+**Durability Damage Triggers** (apply regardless of how many pieces are worn):
+
+| Source | Durability Lost |
+|---|---|
+| Submerged in lava | 2 per second per submerged piece |
+| `CondemnedStoneSurface` in MOLTEN state (contact) | 2 per second per contacting piece |
+| Standing in block fire | 1 per 2 seconds per piece |
+| Flaming arrow / fire charge hit | 5 per hit to the piece in that hit slot |
+| Fire Aspect melee hit | 3 per hit to the piece in that hit slot |
+
+**Design Intent**: Permafrost Armor directly counters the Day phase hazard but offers zero protection against Night freeze — a player wearing the full set can walk through the sun unharmed but will still freeze to death if they don't find heat at Night. It also creates a resource-pressure mechanic: players who use the armor aggressively near molten stone will need to repair it regularly. The Mending Flame block is the primary repair mechanism for this armor.
+
+**Repairability**: Via Mending Flame (primary), or anvil with Glacial Shards. Standard Mending enchantment also works.
+
+---
+
+## 8. Villager Types & Professions
 
 ### Villager Types (visual variants)
 New `VillagerType` registrations affecting skin/texture.
@@ -243,7 +285,7 @@ New `VillagerProfession` registrations with custom job site blocks.
 
 ---
 
-## 8. Time-Gated Mob Spawning
+## 9. Time-Gated Mob Spawning
 
 Phase checked via `PrisonPlanetSavedData` inside `MobSpawnEvent.SpawnPlacementCheck` handler.
 
@@ -289,7 +331,7 @@ Weakened stragglers. Safest surface travel window.
 
 ---
 
-## 9. Biomes
+## 10. Biomes
 
 | Biome | Description | Primary Structure | Hazard Modifier |
 |---|---|---|---|
@@ -301,7 +343,7 @@ Weakened stragglers. Safest surface travel window.
 
 ---
 
-## 10. Key Custom Blocks
+## 11. Key Custom Blocks
 
 ### Structural Blocks
 | Block | Purpose |
@@ -318,6 +360,37 @@ Weakened stragglers. Safest surface travel window.
 | `DeepSnow` | Extended snow accumulation. Stacks as: SnowLayerBlock (layers 1–8) → full snow block → new SnowLayerBlock on top. Handled by SnowAccumulationHandler. |
 | Phase Lantern | Craftable heat source. Emits heat aura (5-block radius) protecting against Night freeze. Light level 12. Craft from dimension-specific materials. |
 
+### Utility Blocks
+
+#### Mending Flame
+
+A supernatural repair forge. Visually: a blue-white flame (closer to soul fire in color) burning from a stone basin. Works anywhere — once crafted from dimension materials, it is portable and usable in any dimension.
+
+**GUI**: Three slots — Item Input, Fuel Input, Output — plus a toggle button: **Purify Curses** (off by default).
+
+**Fuel → Mending Points (MP) conversion** (1 MP = 1 durability restored):
+
+| Fuel Item | MP Provided |
+|---|---|
+| Charcoal / Coal | 50 MP |
+| Wood log | 20 MP |
+| Blaze Rod | 200 MP |
+| Condemned Fuel (dimension item) | 500 MP |
+| Lava Bucket | 1,000 MP (returns empty bucket) |
+
+**Repair rate**: 1 durability per 2 ticks (~10 HP/second). Not instant for large repairs — encourages leaving items in the block and returning.
+
+**Anvil repair**: Accepts Chipped Anvil and Damaged Anvil as items in the Input slot.
+- Damaged Anvil → Chipped Anvil: 500 MP
+- Chipped Anvil → Anvil: 750 MP
+
+**Curse removal** (when Purify toggle is ON):
+- Fuel cost is multiplied by 3× (minimum 500 MP even if item is at full durability)
+- All enchantments matching `minecraft:curse` tag are stripped on completion
+- The player must manually enable Purify — curses are never removed without consent
+
+**Interaction with Permafrost Armor**: The primary intended repair method for Permafrost Armor. Glacial Shards can also be used as a repair material in the fuel slot (treated as 300 MP per shard) specifically for armor — this is a secondary use of the shard material beyond crafting.
+
 ### Villager Job Site Blocks
 | Block | Profession |
 |---|---|
@@ -331,7 +404,7 @@ Weakened stragglers. Safest surface travel window.
 
 ---
 
-## 11. Technical Architecture
+## 12. Technical Architecture
 
 ```
 prisonplanet/
@@ -366,7 +439,21 @@ prisonplanet/
 ├── block/
 │   ├── CondemnedStoneSurfaceBlock.java    — MOLTEN blockstate; randomTick for melt/solidify
 │   ├── CondemnedWaterBlock.java           — Fluid block; evaporate/freeze logic in randomTick
-│   └── PhaseLanternBlock.java             — Heat aura block; light level 12
+│   ├── PhaseLanternBlock.java             — Heat aura block; light level 12
+│   └── MendingFlameBlock.java            — Container block; opens MendingFlameMenu on use
+│
+├── item/
+│   ├── armor/
+│   │   ├── PermafrostArmorMaterial.java   — ArmorMaterial: tier stats, repair ingredient (GlacialShard)
+│   │   └── PermafrostArmorItem.java       — ArmorItem subclass; tracks durability-from-lava/fire logic
+│   └── GlacialShardItem.java             — Raw material; also used as Mending Flame fuel (300 MP/shard)
+│
+├── menu/
+│   ├── MendingFlameMenu.java             — AbstractContainerMenu: 3 slots + purify toggle state
+│   └── MendingFlameScreen.java           — Screen (client): renders slots + toggle button
+│
+├── enchantment/
+│   └── AfterburnerEnchantment.java       — Stores level; actual boost applied in SprintFlyHandler
 │
 ├── entity/
 │   ├── mobs/                              — 12 custom mob classes
@@ -382,6 +469,8 @@ prisonplanet/
 │
 └── events/
     ├── SpawnControlHandler.java
+    ├── SprintFlyHandler.java             — LivingEntityTickEvent: Afterburner boost + DataAttachment cooldown
+    ├── PermafrostArmorTickHandler.java   — LivingEntityTickEvent: lava/fire durability damage to armor pieces
     └── client/
         └── ClientDimensionEffects.java    — Sky color, fog, custom rendering (client-only)
 ```
@@ -416,7 +505,7 @@ resources/data/prisonplanet/
 
 ---
 
-## 12. Implementation Phases
+## 13. Implementation Phases
 
 ### Phase 1 — Core Dimension (Foundation)
 - [ ] Mod scaffolding (NeoForge 1.21.1 gradle setup, main class, mods.toml)
@@ -448,9 +537,20 @@ resources/data/prisonplanet/
 - [ ] Remaining 5 structures
 - [ ] Jigsaw pools for modular prison complex pieces
 
+### Phase 4.5 — Permafrost Armor & Mending Flame
+- [ ] `GlacialShardItem` + ore generation in Catacomb Depths biome (below Y=50)
+- [ ] `PermafrostArmorMaterial` + `PermafrostArmorItem` (4-piece set)
+- [ ] `PermafrostArmorTickHandler` — per-tick durability damage from lava/fire/molten stone
+- [ ] Incremental set bonus logic (1 piece = Fire Res, 2 = partial sun, 3 = full sun, 4 = lava HP immunity)
+- [ ] `MendingFlameBlock` + `MendingFlameMenu` + `MendingFlameScreen`
+- [ ] Fuel → MP conversion table, repair-rate tick logic
+- [ ] Anvil repair (Damaged → Chipped → normal) in menu
+- [ ] Purify Curses toggle — fuel cost multiplier + curse stripping on completion
+
 ### Phase 5 — Enchantments
-- [ ] All 12 enchantment JSON definitions
+- [ ] All 13 enchantment JSON definitions
 - [ ] Custom enchantment effect components for: Condemned's Resolve, Shackle Break, Deathless, Overseer's Dominion
+- [ ] Inbuilt Afterburner: `AfterburnerEnchantment` registration + `SprintFlyHandler` + player `DataAttachment` for cooldown
 - [ ] Loot table integration (books distributed across structure chests by rarity)
 
 ### Phase 6 — Villagers & Mobs
@@ -473,13 +573,15 @@ resources/data/prisonplanet/
 
 ---
 
-## 13. Open Design Questions
+## 14. Open Design Questions
 
 1. **Dimension access**: Portal structure, crafted key, specific ritual, or boss drop?
 2. **Dimension exit**: Player-built exit portal, or fixed exits inside structures only?
 3. **The Overseer as boss**: Full multi-phase boss fight, or rare elite patrol mob?
-4. **Condemned Armor Set**: Craftable dimension armor providing partial hazard resistance without enchantments?
-5. **Biome distribution**: Should the Warden's Citadel biome be separate from Void Cliffs, or generated within it?
-6. **Multiplayer sync**: Cycle clock is per-level (all players share the same phase). Is this the desired behavior for servers?
-7. **Snow persistence**: Should accumulated snow persist between visits (world save), or reset at chunk load? Persistence is more immersive but requires careful balance.
-8. **Flammable block scope**: Should the solar ignition system affect structures (potentially destroying them over time), or only natural terrain blocks?
+4. **Biome distribution**: Should the Warden's Citadel biome be separate from Void Cliffs, or generated within it?
+5. **Multiplayer sync**: Cycle clock is per-level (all players share the same phase). Is this the desired behavior for servers?
+6. **Snow persistence**: Should accumulated snow persist between visits (world save), or reset at chunk load? Persistence is more immersive but requires careful balance.
+7. **Flammable block scope**: Should the solar ignition system affect structures (potentially destroying them over time), or only natural terrain blocks?
+8. **Permafrost Armor — Night interaction**: The armor provides no freeze protection. Should the full set provide any minor cold resistance, or is the hard asymmetry (Day armor vs. Night vulnerability) intentional?
+9. **Mending Flame — curse removal cost**: Is a 3× fuel multiplier the right balance for curse removal, or should it be a flat rare-material cost instead?
+10. **Afterburner — outside-dimension use**: Should the Inbuilt Afterburner enchantment work in all dimensions, or only in `the_condemned`?
