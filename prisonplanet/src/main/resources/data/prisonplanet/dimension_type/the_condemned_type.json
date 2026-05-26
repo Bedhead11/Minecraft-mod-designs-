@@ -5,11 +5,16 @@
   "has_skylight": true,
   "has_ceiling": false,
   "ambient_light": 0.05,
-  "monster_spawn_light_level": 7,
+  "monster_spawn_light_level": {
+    "type": "minecraft:uniform",
+    "min_inclusive": 0,
+    "max_inclusive": 7
+  },
   "monster_spawn_block_light_limit": 0,
   "has_raids": false,
   "respawn_anchor_works": false,
   "bed_works": false,
+  "piglin_safe": false,
   "effects": "minecraft:the_end",
   "min_y": -64,
   "height": 384,

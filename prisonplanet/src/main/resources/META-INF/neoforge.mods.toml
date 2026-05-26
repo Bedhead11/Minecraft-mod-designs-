@@ -4,7 +4,7 @@ license = "MIT"
 
 [[mods]]
     modId = "prisonplanet"
-    version = "0.1.0"
+    version = "${mod_version}"
     displayName = "Prison Planet"
     description = '''
 A custom dimension mod featuring The Condemned — a harsh prison planet dimension.

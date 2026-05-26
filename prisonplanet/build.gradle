@@ -52,6 +52,19 @@ dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
 }
 
+processResources {
+    var replaceProperties = [
+        mod_id      : mod_id,
+        mod_version : mod_version,
+        minecraft_version : minecraft_version,
+        neoforge_version  : neoforge_version
+    ]
+    inputs.properties replaceProperties
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand replaceProperties
+    }
+}
+
 repositories {
     maven { url = 'https://maven.neoforged.net/releases' }
 }
