@@ -1,3 +1,27 @@
 {
-  "block.prisonplanet.condemned_portal": "Condemned Portal"
+  "block.prisonplanet.condemned_portal": "Condemned Portal",
+  "block.prisonplanet.condemned_stone": "Condemned Stone",
+  "block.prisonplanet.condemned_deepslate": "Condemned Deepslate",
+  "block.prisonplanet.scorched_rock": "Scorched Rock",
+  "block.prisonplanet.ashen_sediment": "Ashen Sediment",
+  "block.prisonplanet.condemned_bricks": "Condemned Bricks",
+  "block.prisonplanet.cracked_condemned_bricks": "Cracked Condemned Bricks",
+  "block.prisonplanet.chiseled_condemned_bricks": "Chiseled Condemned Bricks",
+  "block.prisonplanet.condemned_mossy_bricks": "Condemned Mossy Bricks",
+  "block.prisonplanet.polished_condemned_stone": "Polished Condemned Stone",
+  "block.prisonplanet.condemned_tile": "Condemned Tile",
+  "block.prisonplanet.condemned_reinforced_block": "Condemned Reinforced Block",
+  "block.prisonplanet.condemned_carved_block": "Condemned Carved Block",
+  "block.prisonplanet.condemned_cement": "Condemned Cement",
+  "block.prisonplanet.condemned_metal_plate": "Condemned Metal Plate",
+  "block.prisonplanet.condemned_pillar": "Condemned Pillar",
+  "block.prisonplanet.condemned_support_beam": "Condemned Support Beam",
+  "block.prisonplanet.condemned_lamp": "Condemned Lamp",
+  "block.prisonplanet.condemned_floodlight": "Condemned Floodlight",
+  "block.prisonplanet.condemned_grate": "Condemned Grate",
+  "block.prisonplanet.condemned_bars_block": "Condemned Bars",
+  "block.prisonplanet.condemned_vent": "Condemned Vent",
+  "block.prisonplanet.condemned_hazard_block": "Condemned Hazard Block",
+  "block.prisonplanet.condemned_slag": "Condemned Slag",
+  "block.prisonplanet.condemned_chain_block": "Condemned Chain Block"
 }

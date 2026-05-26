@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "prisonplanet:block/condemned_pillar_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "prisonplanet:block/condemned_pillar"
+    },
+    "axis=z": {
+      "model": "prisonplanet:block/condemned_pillar_horizontal",
+      "x": 90
+    }
+  }
+}

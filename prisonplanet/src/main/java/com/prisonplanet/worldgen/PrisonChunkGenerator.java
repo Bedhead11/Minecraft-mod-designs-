@@ -2,27 +2,26 @@ package com.prisonplanet.worldgen;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.prisonplanet.core.ModBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.server.level.WorldGenRegion;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -35,11 +34,7 @@ public class PrisonChunkGenerator extends ChunkGenerator {
             ).apply(instance, PrisonChunkGenerator::new)
     );
 
-    private static final BlockState DEEPSLATE = Blocks.DEEPSLATE.defaultBlockState();
-    private static final BlockState STONE     = Blocks.STONE.defaultBlockState();
-    private static final BlockState AIR        = Blocks.AIR.defaultBlockState();
-
-    /** Y range: -64 (min) to 127 filled with deepslate; Y=127 surface = stone; Y>=128 = air. */
+    /** Y range: -64 (min) to 127 filled with condemned_deepslate; Y=127 surface = condemned_stone; Y>=128 = air. */
     private static final int MIN_Y        = -64;
     private static final int FILL_TOP_Y   = 127; // last deepslate y (inclusive)
     private static final int SURFACE_Y    = 127; // top solid layer (stone overlay)
@@ -65,18 +60,21 @@ public class PrisonChunkGenerator extends ChunkGenerator {
             StructureManager structureManager,
             ChunkAccess chunk) {
 
+        BlockState fill    = ModBlocks.CONDEMNED_DEEPSLATE.get().defaultBlockState();
+        BlockState surface = ModBlocks.CONDEMNED_STONE.get().defaultBlockState();
+
         ChunkPos chunkPos = chunk.getPos();
         int startX = chunkPos.getMinBlockX();
         int startZ = chunkPos.getMinBlockZ();
 
         for (int x = startX; x < startX + 16; x++) {
             for (int z = startZ; z < startZ + 16; z++) {
-                // Fill deepslate from minY up to (FILL_TOP_Y - 1)
+                // Fill condemned_deepslate from minY up to (FILL_TOP_Y - 1)
                 for (int y = MIN_Y; y < FILL_TOP_Y; y++) {
-                    chunk.setBlockState(new BlockPos(x, y, z), DEEPSLATE, false);
+                    chunk.setBlockState(new BlockPos(x, y, z), fill, false);
                 }
-                // Surface layer: stone at Y=127
-                chunk.setBlockState(new BlockPos(x, SURFACE_Y, z), STONE, false);
+                // Surface layer: condemned_stone at Y=127
+                chunk.setBlockState(new BlockPos(x, SURFACE_Y, z), surface, false);
                 // Everything above Y=128 is air (default, no action needed)
             }
         }
@@ -141,14 +139,16 @@ public class PrisonChunkGenerator extends ChunkGenerator {
 
     @Override
     public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor level, RandomState randomState) {
-        // Column: deepslate from minY to 127, stone at 127 (overwritten), air above
+        // Column: condemned_deepslate from minY to 127, condemned_stone at 127 (overwritten), air above
         int columnHeight = SURFACE_Y - MIN_Y + 1; // 192 blocks (y=-64 to y=127 inclusive)
         BlockState[] states = new BlockState[columnHeight];
+        BlockState fill    = ModBlocks.CONDEMNED_DEEPSLATE.get().defaultBlockState();
+        BlockState surface = ModBlocks.CONDEMNED_STONE.get().defaultBlockState();
         for (int i = 0; i < columnHeight - 1; i++) {
-            states[i] = DEEPSLATE;
+            states[i] = fill;
         }
-        // Top of column (Y=127) — stone surface
-        states[columnHeight - 1] = STONE;
+        // Top of column (Y=127) — condemned_stone surface
+        states[columnHeight - 1] = surface;
         return new NoiseColumn(MIN_Y, states);
     }
 

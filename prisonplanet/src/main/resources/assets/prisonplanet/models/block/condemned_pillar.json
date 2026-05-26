@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "prisonplanet:block/condemned_pillar_top",
+    "side": "prisonplanet:block/condemned_pillar_side"
+  }
+}

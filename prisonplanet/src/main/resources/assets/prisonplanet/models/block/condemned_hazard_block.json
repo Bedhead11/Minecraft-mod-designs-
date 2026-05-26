@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "prisonplanet:block/condemned_hazard_block"
+  }
+}
