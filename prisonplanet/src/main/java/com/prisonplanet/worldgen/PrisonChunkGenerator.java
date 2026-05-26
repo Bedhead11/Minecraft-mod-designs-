@@ -4,41 +4,37 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.prisonplanet.core.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.levelgen.blending.Blender;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class PrisonChunkGenerator extends ChunkGenerator {
-
     public static final MapCodec<PrisonChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     BiomeSource.CODEC.fieldOf("biome_source").forGetter(ChunkGenerator::getBiomeSource)
             ).apply(instance, PrisonChunkGenerator::new)
     );
 
-    /** Y range: -64 (min) to 127 filled with condemned_deepslate; Y=127 surface = condemned_stone; Y>=128 = air. */
-    private static final int MIN_Y        = -64;
-    private static final int FILL_TOP_Y   = 127; // last deepslate y (inclusive)
-    private static final int SURFACE_Y    = 127; // top solid layer (stone overlay)
-    private static final int GEN_DEPTH    = 384;
+    private static final int MIN_Y = -64;
+    private static final int SURFACE_Y = 127;
+    private static final int GEN_DEPTH = 384;
 
     public PrisonChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
@@ -49,42 +45,25 @@ public class PrisonChunkGenerator extends ChunkGenerator {
         return CODEC;
     }
 
-    // -----------------------------------------------------------------------
-    // Core generation
-    // -----------------------------------------------------------------------
-
     @Override
     public CompletableFuture<ChunkAccess> fillFromNoise(
             Blender blender,
             RandomState randomState,
             StructureManager structureManager,
             ChunkAccess chunk) {
-
-        BlockState fill    = ModBlocks.CONDEMNED_DEEPSLATE.get().defaultBlockState();
-        BlockState surface = ModBlocks.CONDEMNED_STONE.get().defaultBlockState();
-
         ChunkPos chunkPos = chunk.getPos();
-        int startX = chunkPos.getMinBlockX();
-        int startZ = chunkPos.getMinBlockZ();
-
-        for (int x = startX; x < startX + 16; x++) {
-            for (int z = startZ; z < startZ + 16; z++) {
-                // Fill condemned_deepslate from minY up to (FILL_TOP_Y - 1)
-                for (int y = MIN_Y; y < FILL_TOP_Y; y++) {
-                    chunk.setBlockState(new BlockPos(x, y, z), fill, false);
+        for (int x = chunkPos.getMinBlockX(); x < chunkPos.getMinBlockX() + 16; x++) {
+            for (int z = chunkPos.getMinBlockZ(); z < chunkPos.getMinBlockZ() + 16; z++) {
+                for (int y = MIN_Y; y <= SURFACE_Y; y++) {
+                    BlockState state = isCarvedSpace(x, y, z)
+                            ? Blocks.AIR.defaultBlockState()
+                            : selectSubstrate(y);
+                    chunk.setBlockState(new BlockPos(x, y, z), state, false);
                 }
-                // Surface layer: condemned_stone at Y=127
-                chunk.setBlockState(new BlockPos(x, SURFACE_Y, z), surface, false);
-                // Everything above Y=128 is air (default, no action needed)
             }
         }
-
         return CompletableFuture.completedFuture(chunk);
     }
-
-    // -----------------------------------------------------------------------
-    // No-op overrides
-    // -----------------------------------------------------------------------
 
     @Override
     public void applyCarvers(
@@ -95,7 +74,7 @@ public class PrisonChunkGenerator extends ChunkGenerator {
             StructureManager structureManager,
             ChunkAccess chunk,
             GenerationStep.Carving step) {
-        // No carvers in the condemned dimension
+        // The generator carves prison passages as it fills its substrate.
     }
 
     @Override
@@ -104,21 +83,17 @@ public class PrisonChunkGenerator extends ChunkGenerator {
             StructureManager structureManager,
             RandomState randomState,
             ChunkAccess chunk) {
-        // Surface handled in fillFromNoise
+        // The upper stratum and exposed reactive roof are placed during fill.
     }
 
     @Override
     public void spawnOriginalMobs(WorldGenRegion level) {
-        // No mob spawning during world generation
+        // Custom phase-gated populations are a later content milestone.
     }
-
-    // -----------------------------------------------------------------------
-    // Dimension metrics
-    // -----------------------------------------------------------------------
 
     @Override
     public int getGenDepth() {
-        return GEN_DEPTH; // 384
+        return GEN_DEPTH;
     }
 
     @Override
@@ -128,38 +103,31 @@ public class PrisonChunkGenerator extends ChunkGenerator {
 
     @Override
     public int getMinY() {
-        return MIN_Y; // -64
+        return MIN_Y;
     }
 
     @Override
     public int getBaseHeight(int x, int z, net.minecraft.world.level.levelgen.Heightmap.Types heightmapType,
-                              LevelHeightAccessor level, RandomState randomState) {
-        return SURFACE_Y + 1; // 128 — one block above the surface
+                             LevelHeightAccessor level, RandomState randomState) {
+        return SURFACE_Y + 1;
     }
 
     @Override
     public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor level, RandomState randomState) {
-        // Column: condemned_deepslate from minY to 127, condemned_stone at 127 (overwritten), air above
-        int columnHeight = SURFACE_Y - MIN_Y + 1; // 192 blocks (y=-64 to y=127 inclusive)
-        BlockState[] states = new BlockState[columnHeight];
-        BlockState fill    = ModBlocks.CONDEMNED_DEEPSLATE.get().defaultBlockState();
-        BlockState surface = ModBlocks.CONDEMNED_STONE.get().defaultBlockState();
-        for (int i = 0; i < columnHeight - 1; i++) {
-            states[i] = fill;
+        BlockState[] states = new BlockState[SURFACE_Y - MIN_Y + 1];
+        for (int i = 0; i < states.length; i++) {
+            int y = MIN_Y + i;
+            states[i] = isCarvedSpace(x, y, z)
+                    ? Blocks.AIR.defaultBlockState()
+                    : selectSubstrate(y);
         }
-        // Top of column (Y=127) — condemned_stone surface
-        states[columnHeight - 1] = surface;
         return new NoiseColumn(MIN_Y, states);
     }
 
     @Override
     public void addDebugScreenInfo(List<String> info, RandomState randomState, BlockPos pos) {
-        info.add("Prison Planet Generator");
+        info.add("Prison Planet: carved prison decks");
     }
-
-    // -----------------------------------------------------------------------
-    // Mob spawning (none)
-    // -----------------------------------------------------------------------
 
     @Override
     public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(
@@ -168,5 +136,59 @@ public class PrisonChunkGenerator extends ChunkGenerator {
             MobCategory category,
             BlockPos pos) {
         return WeightedRandomList.create();
+    }
+
+    private static BlockState selectSubstrate(int y) {
+        if (y == SURFACE_Y) return ModBlocks.CONDEMNED_STONE_SURFACE.get().defaultBlockState();
+        if (y < 0) return ModBlocks.CONDEMNED_DEEPSLATE.get().defaultBlockState();
+        if (y < 50) return ModBlocks.CONDEMNED_CEMENT.get().defaultBlockState();
+        if (y < 100) return ModBlocks.CONDEMNED_BRICKS.get().defaultBlockState();
+        return ModBlocks.CONDEMNED_STONE.get().defaultBlockState();
+    }
+
+    private static boolean isCarvedSpace(int x, int y, int z) {
+        if (y < 0) return isCatacombPassage(x, y, z);
+        if (isSilo(x, z) && y >= 2 && y <= 127) return true;
+        if (y >= 100) return isSurfaceBreach(x, y, z);
+        return isDeckInterior(x, y, z);
+    }
+
+    private static boolean isDeckInterior(int x, int y, int z) {
+        int relativeY = Math.floorMod(y, 8);
+        if (relativeY < 1 || relativeY > 5) return false;
+        int localX = Math.floorMod(x, 32);
+        int localZ = Math.floorMod(z, 32);
+        boolean corridor = between(localX, 14, 17) || between(localZ, 14, 17);
+        boolean cellBlock = between(localX, 3, 11) && between(localZ, 3, 11);
+        boolean guardRoom = between(localX, 20, 27) && between(localZ, 20, 27);
+        boolean grandTunnel = between(Math.floorMod(x, 96), 43, 52) && y >= 48 && y <= 84;
+        return corridor || cellBlock || guardRoom || grandTunnel;
+    }
+
+    private static boolean isCatacombPassage(int x, int y, int z) {
+        if (y < -55 || y > -3) return false;
+        int localX = Math.floorMod(x, 24);
+        int localZ = Math.floorMod(z, 24);
+        boolean tunnel = (between(localX, 10, 13) || between(localZ, 10, 13))
+                && between(Math.floorMod(y, 8), 1, 5);
+        boolean cavern = between(localX, 4, 18) && between(localZ, 4, 18)
+                && y >= -32 && y <= -25;
+        return tunnel || cavern;
+    }
+
+    private static boolean isSilo(int x, int z) {
+        return between(Math.floorMod(x, 48), 21, 26)
+                && between(Math.floorMod(z, 48), 21, 26);
+    }
+
+    private static boolean isSurfaceBreach(int x, int y, int z) {
+        if (isSilo(x, z)) return true;
+        return y >= 120
+                && between(Math.floorMod(x, 64), 8, 20)
+                && between(Math.floorMod(z, 64), 8, 20);
+    }
+
+    private static boolean between(int value, int min, int max) {
+        return value >= min && value <= max;
     }
 }

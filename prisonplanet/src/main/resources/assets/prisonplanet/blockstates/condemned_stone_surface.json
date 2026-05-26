@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "molten=false": { "model": "prisonplanet:block/condemned_stone_surface" },
+    "molten=true": { "model": "prisonplanet:block/condemned_stone_surface_molten" }
+  }
+}

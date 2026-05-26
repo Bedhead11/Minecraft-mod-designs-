@@ -1,6 +1,7 @@
 package com.prisonplanet.core;
 
 import com.prisonplanet.block.CondemnedPortalBlock;
+import com.prisonplanet.block.CondemnedStoneSurfaceBlock;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -17,6 +18,9 @@ public final class ModBlocks {
     // --- Existing ---
     public static final DeferredHolder<Block, CondemnedPortalBlock> CONDEMNED_PORTAL =
             BLOCKS.register("condemned_portal", CondemnedPortalBlock::new);
+
+    public static final DeferredHolder<Block, CondemnedStoneSurfaceBlock> CONDEMNED_STONE_SURFACE =
+            BLOCKS.register("condemned_stone_surface", CondemnedStoneSurfaceBlock::new);
 
     // --- Terrain (4) ---
     public static final DeferredHolder<Block, Block> CONDEMNED_STONE =
@@ -112,6 +116,11 @@ public final class ModBlocks {
             BLOCKS.register("condemned_floodlight",
                 () -> new Block(BlockBehaviour.Properties.of()
                     .requiresCorrectToolForDrops().strength(1.5f, 6.0f).lightLevel(state -> 15).sound(SoundType.STONE)));
+
+    public static final DeferredHolder<Block, Block> PHASE_LANTERN =
+            BLOCKS.register("phase_lantern",
+                () -> new Block(BlockBehaviour.Properties.of()
+                    .requiresCorrectToolForDrops().strength(2.0f, 6.0f).lightLevel(state -> 12).sound(SoundType.LANTERN)));
 
     // --- Detail/industrial (6) ---
     public static final DeferredHolder<Block, Block> CONDEMNED_GRATE =

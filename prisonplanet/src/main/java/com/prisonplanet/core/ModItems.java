@@ -16,6 +16,10 @@ public final class ModItems {
             ITEMS.register("condemned_portal", () ->
                     new BlockItem(ModBlocks.CONDEMNED_PORTAL.get(), new Item.Properties()));
 
+    public static final DeferredHolder<Item, BlockItem> CONDEMNED_STONE_SURFACE =
+            ITEMS.register("condemned_stone_surface", () ->
+                    new BlockItem(ModBlocks.CONDEMNED_STONE_SURFACE.get(), new Item.Properties()));
+
     // --- Terrain (4) ---
     public static final DeferredHolder<Item, BlockItem> CONDEMNED_STONE =
             ITEMS.register("condemned_stone", () ->
@@ -92,6 +96,13 @@ public final class ModItems {
     public static final DeferredHolder<Item, BlockItem> CONDEMNED_FLOODLIGHT =
             ITEMS.register("condemned_floodlight", () ->
                     new BlockItem(ModBlocks.CONDEMNED_FLOODLIGHT.get(), new Item.Properties()));
+
+    public static final DeferredHolder<Item, BlockItem> PHASE_LANTERN =
+            ITEMS.register("phase_lantern", () ->
+                    new BlockItem(ModBlocks.PHASE_LANTERN.get(), new Item.Properties()));
+
+    public static final DeferredHolder<Item, Item> GLACIAL_SHARD =
+            ITEMS.register("glacial_shard", () -> new Item(new Item.Properties()));
 
     // --- Detail/industrial (6) ---
     public static final DeferredHolder<Item, BlockItem> CONDEMNED_GRATE =

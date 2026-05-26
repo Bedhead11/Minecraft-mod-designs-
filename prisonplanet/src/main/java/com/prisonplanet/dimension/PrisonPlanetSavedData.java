@@ -58,6 +58,14 @@ public class PrisonPlanetSavedData extends SavedData {
         return CyclePhase.fromTick(cycleTick);
     }
 
+    public long getTicksIntoPhase() {
+        return cycleTick % 48000L;
+    }
+
+    public boolean isHazardGracePeriod() {
+        return getTicksIntoPhase() < 200L;
+    }
+
     /**
      * Advances the cycle by one tick, wrapping at 192,000. Marks data dirty.
      */

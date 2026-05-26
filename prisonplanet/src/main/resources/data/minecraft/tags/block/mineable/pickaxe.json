@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "prisonplanet:condemned_stone",
+    "prisonplanet:condemned_deepslate",
+    "prisonplanet:condemned_cement",
+    "prisonplanet:condemned_bricks",
+    "prisonplanet:condemned_stone_surface",
+    "prisonplanet:phase_lantern"
+  ]
+}

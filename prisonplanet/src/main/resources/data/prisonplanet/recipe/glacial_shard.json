@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "minecraft:packed_ice" },
+    { "item": "minecraft:amethyst_shard" }
+  ],
+  "result": { "id": "prisonplanet:glacial_shard", "count": 2 }
+}

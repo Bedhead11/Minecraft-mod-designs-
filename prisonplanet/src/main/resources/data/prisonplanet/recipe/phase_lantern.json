@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["IGI", "GLG", "IGI"],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "G": { "item": "minecraft:glass" },
+    "L": { "item": "prisonplanet:glacial_shard" }
+  },
+  "result": { "id": "prisonplanet:phase_lantern", "count": 1 }
+}

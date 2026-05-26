@@ -23,5 +23,8 @@
   "block.prisonplanet.condemned_vent": "Condemned Vent",
   "block.prisonplanet.condemned_hazard_block": "Condemned Hazard Block",
   "block.prisonplanet.condemned_slag": "Condemned Slag",
-  "block.prisonplanet.condemned_chain_block": "Condemned Chain Block"
+  "block.prisonplanet.condemned_chain_block": "Condemned Chain Block",
+  "block.prisonplanet.condemned_stone_surface": "Condemned Surface Stone",
+  "block.prisonplanet.phase_lantern": "Phase Lantern",
+  "item.prisonplanet.glacial_shard": "Glacial Shard"
 }

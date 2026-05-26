@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": ["SS", "SS"],
+  "key": { "S": { "item": "prisonplanet:condemned_stone" } },
+  "result": { "id": "prisonplanet:condemned_bricks", "count": 4 }
+}
