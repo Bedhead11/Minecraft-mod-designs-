@@ -1,0 +1,7 @@
+{
+    "variants":  {
+                     "":  {
+                              "model":  "prisonplanet:block/prison_wall_panel"
+                          }
+                 }
+}

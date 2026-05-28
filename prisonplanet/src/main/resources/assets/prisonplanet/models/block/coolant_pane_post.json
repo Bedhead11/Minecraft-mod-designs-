@@ -1,0 +1,8 @@
+{
+    "parent":  "minecraft:block/iron_bars_post",
+    "render_type":  "minecraft:cutout",
+    "textures":  {
+                     "bars":  "prisonplanet:block/coolant_pane",
+                     "particle":  "prisonplanet:block/coolant_pane"
+                 }
+}

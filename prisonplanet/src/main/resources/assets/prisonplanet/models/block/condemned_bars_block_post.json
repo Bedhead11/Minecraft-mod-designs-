@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/iron_bars_post",
+  "textures": {
+    "bars": "prisonplanet:block/condemned_bars_block",
+    "particle": "prisonplanet:block/condemned_bars_block"
+  }
+}

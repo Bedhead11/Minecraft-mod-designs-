@@ -1,0 +1,16 @@
+{
+    "variants":  {
+                     "axis=y":  {
+                                    "model":  "prisonplanet:block/pipe_bundle"
+                                },
+                     "axis=z":  {
+                                    "model":  "prisonplanet:block/pipe_bundle_horizontal",
+                                    "x":  90
+                                },
+                     "axis=x":  {
+                                    "model":  "prisonplanet:block/pipe_bundle_horizontal",
+                                    "x":  90,
+                                    "y":  90
+                                }
+                 }
+}

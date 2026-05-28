@@ -6,13 +6,11 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.core.HolderLookup;
 
 /**
- * Persistent data for the Prison Planet dimension cycle.
- * Stores the current cycle tick (0 - 191,999).
+ * Persistent record of the most recently observed extended Condemned cycle time.
  */
 public class PrisonPlanetSavedData extends SavedData {
 
     private static final String KEY_CYCLE_TICK = "cycleTick";
-
     private long cycleTick = 0L;
 
     public PrisonPlanetSavedData() {
@@ -55,11 +53,11 @@ public class PrisonPlanetSavedData extends SavedData {
     }
 
     public CyclePhase getCurrentPhase() {
-        return CyclePhase.fromTick(cycleTick);
+        return CyclePhase.fromDayTime(getVisibleDayTime());
     }
 
     public long getTicksIntoPhase() {
-        return cycleTick % 48000L;
+        return CyclePhase.ticksIntoPhase(getVisibleDayTime());
     }
 
     public boolean isHazardGracePeriod() {
@@ -70,7 +68,20 @@ public class PrisonPlanetSavedData extends SavedData {
      * Advances the cycle by one tick, wrapping at 192,000. Marks data dirty.
      */
     public void tick() {
-        cycleTick = (cycleTick + 1) % 192000L;
+        cycleTick = (cycleTick + 1) % CyclePhase.CYCLE_LENGTH;
         setDirty();
+    }
+
+    public long getVisibleDayTime() {
+        return Math.floorMod(cycleTick, CyclePhase.CYCLE_LENGTH);
+    }
+
+    public void synchronizeToVisibleDayTime(long dayTime) {
+        long nextTick = Math.floorMod(dayTime, CyclePhase.CYCLE_LENGTH);
+        CyclePhase oldPhase = getCurrentPhase();
+        cycleTick = nextTick;
+        if (oldPhase != getCurrentPhase()) {
+            setDirty();
+        }
     }
 }

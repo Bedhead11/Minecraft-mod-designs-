@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:condemned_bricks"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:ritual_carved_stone",
+                   "count":  1
+               }
+}

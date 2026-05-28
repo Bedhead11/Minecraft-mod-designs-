@@ -1,0 +1,7 @@
+{
+    "parent":  "minecraft:block/cube_column",
+    "textures":  {
+                     "side":  "prisonplanet:block/cracked_support_column_side",
+                     "end":  "prisonplanet:block/cracked_support_column_top"
+                 }
+}

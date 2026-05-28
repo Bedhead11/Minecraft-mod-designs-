@@ -1,14 +1,17 @@
 {
-  "replace": false,
-  "values": [
-    "minecraft:fire",
-    "minecraft:soul_fire",
-    "minecraft:campfire",
-    "minecraft:soul_campfire",
-    "minecraft:furnace",
-    "minecraft:smoker",
-    "minecraft:blast_furnace",
-    "minecraft:lava",
-    "prisonplanet:phase_lantern"
-  ]
+    "replace":  false,
+    "values":  [
+                   "minecraft:blast_furnace",
+                   "minecraft:campfire",
+                   "minecraft:fire",
+                   "minecraft:furnace",
+                   "minecraft:lava",
+                   "minecraft:smoker",
+                   "minecraft:soul_campfire",
+                   "minecraft:soul_fire",
+                   "prisonplanet:ember_lamp",
+                   "prisonplanet:furnace_lamp",
+                   "prisonplanet:phase_lantern",
+                   "prisonplanet:ritual_brazier"
+               ]
 }

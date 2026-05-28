@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:condemned_metal_plate"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:coolant_pipe",
+                   "count":  1
+               }
+}

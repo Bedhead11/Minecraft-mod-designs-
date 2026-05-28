@@ -1,0 +1,13 @@
+{
+    "variants":  {
+                     "type=bottom":  {
+                                         "model":  "prisonplanet:block/scorched_rock_slab"
+                                     },
+                     "type=top":  {
+                                      "model":  "prisonplanet:block/scorched_rock_slab_top"
+                                  },
+                     "type=double":  {
+                                         "model":  "prisonplanet:block/scorched_rock_slab_double"
+                                     }
+                 }
+}

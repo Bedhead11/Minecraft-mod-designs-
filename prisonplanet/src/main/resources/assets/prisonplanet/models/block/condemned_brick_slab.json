@@ -1,0 +1,8 @@
+{
+    "parent":  "minecraft:block/slab",
+    "textures":  {
+                     "bottom":  "prisonplanet:block/condemned_brick_slab",
+                     "top":  "prisonplanet:block/condemned_brick_slab",
+                     "side":  "prisonplanet:block/condemned_brick_slab"
+                 }
+}

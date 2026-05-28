@@ -4,8 +4,11 @@ import com.prisonplanet.block.CondemnedPortalBlock;
 import com.prisonplanet.block.CondemnedStoneSurfaceBlock;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.IronBarsBlock;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -41,7 +44,14 @@ public final class ModBlocks {
     public static final DeferredHolder<Block, Block> ASHEN_SEDIMENT =
             BLOCKS.register("ashen_sediment",
                 () -> new Block(BlockBehaviour.Properties.of()
-                    .requiresCorrectToolForDrops().strength(3.0f, 6.0f).sound(SoundType.STONE)));
+                    .strength(0.6f).sound(SoundType.SAND)));
+
+    public static final DeferredHolder<Block, LiquidBlock> SUSPENDED_BRINE =
+            BLOCKS.register("suspended_brine",
+                () -> new LiquidBlock(ModFluids.SUSPENDED_BRINE.get(), BlockBehaviour.Properties.of()
+                    .replaceable().noCollission().strength(100.0F)
+                    .pushReaction(PushReaction.DESTROY).noLootTable().liquid()
+                    .randomTicks().sound(SoundType.EMPTY)));
 
     // --- Brick/wall (6) ---
     public static final DeferredHolder<Block, Block> CONDEMNED_BRICKS =
@@ -128,10 +138,11 @@ public final class ModBlocks {
                 () -> new Block(BlockBehaviour.Properties.of()
                     .requiresCorrectToolForDrops().strength(3.0f, 8.0f).sound(SoundType.METAL)));
 
-    public static final DeferredHolder<Block, Block> CONDEMNED_BARS_BLOCK =
+    public static final DeferredHolder<Block, IronBarsBlock> CONDEMNED_BARS_BLOCK =
             BLOCKS.register("condemned_bars_block",
-                () -> new Block(BlockBehaviour.Properties.of()
-                    .requiresCorrectToolForDrops().strength(3.0f, 8.0f).sound(SoundType.METAL)));
+                () -> new IronBarsBlock(BlockBehaviour.Properties.of()
+                    .requiresCorrectToolForDrops().strength(3.0f, 8.0f)
+                    .sound(SoundType.METAL).noOcclusion()));
 
     public static final DeferredHolder<Block, Block> CONDEMNED_VENT =
             BLOCKS.register("condemned_vent",

@@ -1,0 +1,14 @@
+{
+    "replace":  false,
+    "values":  [
+                   "prisonplanet:ashen_sediment",
+                   "prisonplanet:black_glass_sand",
+                   "prisonplanet:cinder_sand",
+                   "prisonplanet:fine_ash",
+                   "prisonplanet:frost_ash",
+                   "prisonplanet:powdered_char",
+                   "prisonplanet:red_ash",
+                   "prisonplanet:slag_gravel",
+                   "prisonplanet:sulfur_sand"
+               ]
+}

@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:condemned_bricks"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:warden_insignia_block",
+                   "count":  1
+               }
+}

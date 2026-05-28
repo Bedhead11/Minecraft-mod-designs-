@@ -1,0 +1,6 @@
+{
+    "parent":  "minecraft:block/wall_inventory",
+    "textures":  {
+                     "wall":  "prisonplanet:block/condemned_tile_wall"
+                 }
+}

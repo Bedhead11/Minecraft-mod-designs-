@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:blackened_concrete"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:blackened_concrete_slab",
+                   "count":  1
+               }
+}

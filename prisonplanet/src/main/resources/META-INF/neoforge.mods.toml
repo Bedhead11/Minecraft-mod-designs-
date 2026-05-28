@@ -2,12 +2,15 @@ modLoader = "javafml"
 loaderVersion = "[4,)"
 license = "MIT"
 
+[[mixins]]
+    config = "prisonplanet.mixins.json"
+
 [[mods]]
     modId = "prisonplanet"
     version = "${mod_version}"
     displayName = "Prison Planet"
     description = '''
-A custom dimension mod featuring The Condemned — a harsh prison planet dimension.
+A custom dimension mod featuring The Condemned - a harsh prison planet dimension.
 '''
 
 [[dependencies.prisonplanet]]

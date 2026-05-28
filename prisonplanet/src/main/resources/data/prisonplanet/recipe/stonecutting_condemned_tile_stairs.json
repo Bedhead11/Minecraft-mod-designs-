@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:condemned_tile"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:condemned_tile_stairs",
+                   "count":  1
+               }
+}

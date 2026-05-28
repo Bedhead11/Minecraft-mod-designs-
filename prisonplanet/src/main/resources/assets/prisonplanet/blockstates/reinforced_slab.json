@@ -1,0 +1,13 @@
+{
+    "variants":  {
+                     "type=bottom":  {
+                                         "model":  "prisonplanet:block/reinforced_slab"
+                                     },
+                     "type=top":  {
+                                      "model":  "prisonplanet:block/reinforced_slab_top"
+                                  },
+                     "type=double":  {
+                                         "model":  "prisonplanet:block/reinforced_slab_double"
+                                     }
+                 }
+}

@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:condemned_reinforced_block"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:reinforced_stairs",
+                   "count":  1
+               }
+}

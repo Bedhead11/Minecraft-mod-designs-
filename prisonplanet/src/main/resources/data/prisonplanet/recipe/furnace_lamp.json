@@ -1,0 +1,24 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "building",
+    "pattern":  [
+                    "MGM",
+                    "GCG",
+                    "MGM"
+                ],
+    "key":  {
+                "M":  {
+                          "item":  "prisonplanet:condemned_metal_plate"
+                      },
+                "G":  {
+                          "item":  "minecraft:glass_pane"
+                      },
+                "C":  {
+                          "item":  "prisonplanet:sulfur_cluster"
+                      }
+            },
+    "result":  {
+                   "id":  "prisonplanet:furnace_lamp",
+                   "count":  1
+               }
+}

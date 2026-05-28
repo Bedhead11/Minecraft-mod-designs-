@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:condemned_bricks"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:ash_concrete",
+                   "count":  1
+               }
+}

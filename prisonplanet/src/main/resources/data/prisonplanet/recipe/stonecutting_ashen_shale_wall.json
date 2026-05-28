@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:ashen_shale"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:ashen_shale_wall",
+                   "count":  1
+               }
+}

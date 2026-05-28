@@ -187,6 +187,22 @@ If either condition is not met, no player hazard or block effect applies at that
 
 ### 5.1 Core Philosophy
 
+#### Current Terrain Direction (0.2.0+)
+
+The later gameplay direction supersedes the enclosed-landscape concept below: The Condemned now has naturally shaped ashen hills and valleys, with the megastructure interlaced throughout and beneath that terrain. The prison remains dimension-wide and continuously traversable through connected districts, while surface exposure is common enough for lava pockets, snowfall, breach courtyards, collapsed roofs, and deep-drop silos to be meaningful hazards.
+
+Generation quality requirements:
+- Terrain shape and structure districts are driven by the world seed.
+- District hubs connect to neighbouring districts on multiple decks; isolated room fields are not acceptable.
+- Roof gaps and open silos are deliberate hazard spaces, while intact interiors remain reliable shelter.
+- World-generation revisions apply to newly generated chunks and cannot cleanly retrofit existing chunks.
+
+#### Current Material Palette (0.3.0+)
+
+The Condemned now has a full construction and environmental material library rather than relying on placeholder stone. It includes eight geological blocks, eight ore blocks across four resource families, twenty-four decorated or industrial solids, eighteen shaped builder variants, ten connected barrier blocks, eight lights, eight surface plants, and eight gravity-affected ash or sand deposits. New terrain uses ash caps and geological strata with sparse adapted flora; prison massing gains varied panels and plates; deep and shallow strata supply the new ores.
+
+All shaped structural pieces use vanilla connection and shape behavior. Walls and fences carry their appropriate vanilla tags, transparent bars and panes use the iron-bars connection behavior, and ash/sand deposits fall when unsupported. Warm industrial fixtures and ritual braziers are recognized by the Night heat system. The full palette is exposed in the `The Condemned` creative tab, with survival building access through stonecutting and fixture recipes.
+
 `the_condemned` is not a landscape with structures in it. **The world IS the structure.** There is no natural terrain, no sky-open wilderness, no horizon of grass and trees. Every block above the deep catacombs is part of a single continuous megastructure — a prison complex of incomprehensible scale that extends to the world border in all directions and has no visible terminus.
 
 The aesthetic target: Doom's demon-industrial architecture crossed with Mad God's grotesque machinery and Crematoria's overwhelming sense of inescapable scale. The player should feel they are deep inside something vast, not exploring something built.
@@ -449,6 +465,27 @@ New `VillagerProfession` registrations with custom job site blocks.
 ## 9. Time-Gated Mob Spawning
 
 Phase checked via `PrisonPlanetSavedData` inside `MobSpawnEvent.SpawnPlacementCheck` handler.
+
+### Implemented Native Roster (0.4.0)
+
+The current playable roster provides twelve dimension-native entities with dedicated model rigs, textures, attributes, drops, and spawn eggs. Natural biome spawning has been enabled in the custom chunk generator.
+
+| Mob | Disposition | Natural spawn rule | Distinct behavior | Day/night hazard response |
+|---|---|---|---|---|
+| Ash Stalker | Hostile | Dark only | Leaping ambusher; occasional blindness | Vulnerable |
+| Chain Wretch | Hostile | Dark only | Opens doors; applies slowness | Vulnerable |
+| Frost Wraith | Hostile | Dark only | Freezing strike; avoids sunlight | Immune |
+| Vent Crawler | Hostile | Dark only | Rapid leap attack; poison | Vulnerable |
+| Cage Phantom | Hostile | Dark only | Avoids sunlight; weakness attack | Vulnerable |
+| Cinder Hound | Hostile | Dark only | Leaps and sets targets alight | Vulnerable |
+| Rust Sentinel | Hostile | Any light | Armored patrol; mining fatigue | Vulnerable |
+| Slag Brute | Hostile | Any light | Heavy melee knockback | Vulnerable |
+| Furnace Warden | Hostile | Any light | Fireproof elite flame attacker | Immune |
+| Ash Grazer | Passive | Any light | Breedable ash-fed grazer | Vulnerable |
+| Glacial Drifter | Passive | Dark only | Shard-fed slow wanderer | Immune |
+| Salvage Porter | Passive | Any light | Armored scrap-fed forager | Vulnerable |
+
+The phase-specific roster concepts below remain longer-term expansion ideas rather than the currently registered spawn table.
 
 ### Day (0 – 47,999 ticks)
 Heat-adapted surface creatures. Players seek shade.
@@ -785,6 +822,93 @@ resources/data/prisonplanet/
 ### Deferred (no planning yet)
 - **Mob design** (The Overseer and all custom mobs)
 - **Biome distribution** (Warden's Citadel placement, biome layouts)
+
+---
+
+## Implemented Addition: Suspended Brine (0.5.0)
+
+Suspended Brine is a finite industrial coolant fluid that uses lava-like spread behavior under inverted buoyancy.
+
+- Source and flowing states rise toward ceilings instead of falling toward floors.
+- Lateral flow favors nearby upward openings, allowing pools to spread naturally across room ceilings.
+- The liquid is bucketable but cannot form new source blocks; source renewal is intentionally disabled.
+- Its movement is viscous and short-ranging like lava, and it is intentionally not treated as water.
+- No brine reservoirs are generated in worldgen at this stage; placement remains player/test driven until its final use cases are defined.
+- During the Day phase, exposed brine above the environmental threshold evaporates; covered ceiling pools remain protected.
+- Animated teal/cyan textures, a dedicated bucket icon, submerged fog tint, and a lower-surface client renderer make the fluid visually legible as upside-down liquid.
+
+## Implemented Addition: Authored Landmark Loot (0.5.1)
+
+The first authored landmark templates are stored as mod resources under `prisonplanet:landmarks/`: `rustwarden_keep`, `safe_house`, `waystone1`, and `waystone2`. They are loot-ready assets but are not yet selected by procedural world generation.
+
+- The `safe_house` export currently contains an empty barrel rather than a chest; its packaged copy uses the `prisonplanet:chests/safe_house_supplies` loot table.
+- The `rustwarden_keep` export contains eight trial spawners configured for native hostile mobs; its packaged copy assigns each spawner the `prisonplanet:chests/rustwarden_trial_reward` completion table.
+- Structure source exports remain in the creative save untouched; a repeatable import tool prepares namespace-correct, loot-wired copies for the mod jar.
+
+## Implemented Addition: Generated Landmarks (0.5.2)
+
+Authored landmarks now generate through data-driven structure sets limited to the Condemned biome.
+
+- Safe houses are frequent surface structures and supply coal, sticks, torches, food, occasional potion ingredients, and rare Fire Resistance potions.
+- Waystones are semi-rare surface landmarks, selecting equally between the two authored variants.
+- Rustwarden keeps are rare landmark encounters positioned from the surface with a randomized `1-20` block burial depth.
+- Rustwarden trial rewards are high-value late-game prizes: enchanted netherite gear, high-value enchanted books with `1-5` enchantment rolls, diamonds, netherite scrap, and ancient debris.
+
+## Implemented Fix: Existing-World Landmark Retrofit (0.5.3)
+
+Landmark generation now accounts for Condemned chunks explored before the `0.5.2` structure sets were introduced.
+
+- Previously generated Condemned chunks are checked once after they safely finish loading and can receive deterministic retrofit landmarks at the intended approximate frequency.
+- Safe houses and waystones are retrofitted on the surface; Rustwarden keeps remain rarely placed and buried `1-20` blocks below the terrain surface.
+- Fresh chunks continue to use registered data-driven structure sets, so normal generated structure starts and locate behavior remain available in newly explored territory.
+- Root template aliases make manual template testing straightforward through `/place template prisonplanet:safe_house`, `/place template prisonplanet:waystone1`, `/place template prisonplanet:waystone2`, and `/place template prisonplanet:rustwarden_keep`.
+
+## Implemented Fix: Landmark Jigsaw Starts (0.5.4)
+
+The authored landmark structure registry previously set jigsaw size to `0`, which produced no first piece in Minecraft 1.21.1. Each configured structure therefore failed placement and could not generate naturally.
+
+- Safe houses, waystones, and Rustwarden keeps now use jigsaw depth `1`, allowing the initial authored template to be created without requiring attached expansion pieces.
+- The existing-terrain retrofit now selects its anchor chunks with the same vanilla random-spread calculation and salts as native structure placement.
+- Configured generation can be tested with `/place structure prisonplanet:safe_house`, `/place structure prisonplanet:waystones`, and `/place structure prisonplanet:rustwarden_keep`.
+- Individual authored variants can be tested with `/place template prisonplanet:waystone1` and `/place template prisonplanet:waystone2`.
+
+## Implemented Fix: Runtime Stabilization (0.5.5)
+
+The first broad environmental simulation pass performed too much work on every server tick, which could delay block updates, freeze effect timers visually, slow terrain arrival, and make saving appear stuck.
+
+- Chunk-wide environmental effects are now distributed in rotating batches over the loaded simulation area instead of scanning every loaded chunk every tick.
+- Molten stone restoration is capped each tick to prevent sunset/night transition spikes while still steadily restoring all loaded lava sources.
+- Cold exposure and extended-radius warmth checks are evaluated at a bounded cadence; the movement penalty is refreshed only as needed.
+- World generation caches repeated district definitions during chunk fill, cutting repeated random layout calculations without changing seeded terrain layout.
+- Missing Suspended Brine blockstate/model and Condemned portal item assets have been supplied to remove Prison Planet renderer warnings.
+
+## Implemented Fix: Heavy Night Snowfall (0.5.6)
+
+Night snowfall now uses a vanilla-style precipitation approach rather than the generic environmental hazard sampling cadence.
+
+- During the Night phase, loaded chunks receive random open-sky snow attempts at a bounded rate approximately four times vanilla's default precipitation opportunity.
+- Placement respects vanilla snow support and block-light checks, while still requiring exposure above the Condemned hazard elevation.
+- Snow layers accumulate to eight layers, compact into snow blocks, and continue stacking above those blocks, allowing structures and terrain to become buried in deep drifts.
+- Because the Condemned cycle has four `48000`-tick phases, command testing for Night uses `/time set 96000`; vanilla `/time set night` remains within this dimension's extended Day phase.
+
+## Implemented Addition: Shelter Depth And Hostile Sky (0.5.7)
+
+- Safe-house generation now has `7` chunk spacing and `2` chunk separation, and each attempt chooses between surface placement and a buried `4-20` block placement using a `3:2` weighting.
+- Existing explored terrain receives the same refreshed surface/buried safe-house distribution through retrofit placement.
+- Condemned clouds are completely disabled through the dimension renderer, preserving unobstructed hazard visibility and the oppressive open sky.
+- The sky visual now layers a new dark iron-red nebula/starfield backdrop behind the dense procedural stars, and uses a new cracked molten giant-sun texture with its existing corona glow. No moon is rendered.
+
+## Implemented Fix: Extended-Cycle Skylight (0.5.8)
+
+This implementation note supersedes older environmental implementation descriptions above where those descriptions differ from current code.
+
+- The Condemned cycle remains `192000` ticks: Day `0-47999`, Sunset `48000-95999`, Night `96000-143999`, and Sunrise `144000-191999`.
+- Vanilla skylight is now aligned with the custom cycle: full bright during Day, one extended vanilla-style dimming transition during Sunset, full dark during Night, and one extended vanilla-style brightening transition during Sunrise. It no longer repeats its ordinary `24000`-tick light cycle inside a phase.
+- Hazards require direct open-sky exposure at or above `Y=50`; covered positions and lower positions remain sheltered.
+- Day ignites exposed vulnerable entities every `40` ticks after a `200`-tick grace period, melts only exposed vanilla stone/cobblestone/granite/diorite/andesite surface pockets into tracked liquid lava, evaporates exposed water/brine, and can ignite exposed flammable blocks.
+- Sunset is entity-safe and progressively restores tracked solar lava to its exact source stone block.
+- Night is entity-dangerous after a `200`-tick grace period: exposed entities away from heat accumulate freezing, exposed water becomes packed ice, and loaded exposed areas accumulate multi-block snow through bounded vanilla-compatible snowfall attempts.
+- Sunrise is entity-safe: exposed snow layers and snow blocks melt from the top through bounded sampling, exposed packed ice becomes water, and remaining tracked solar lava continues restoration.
 
 ### Still Open
 1. **Mending Flame — zero-cost edge case**: If an item is already at full durability, enabling Purify would cost 0 fuel. Should there be a minimum fuel requirement for curse removal on a non-damaged item?

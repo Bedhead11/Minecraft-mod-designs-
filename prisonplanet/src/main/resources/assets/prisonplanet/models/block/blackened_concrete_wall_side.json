@@ -1,0 +1,6 @@
+{
+    "parent":  "minecraft:block/template_wall_side",
+    "textures":  {
+                     "wall":  "prisonplanet:block/blackened_concrete_wall"
+                 }
+}

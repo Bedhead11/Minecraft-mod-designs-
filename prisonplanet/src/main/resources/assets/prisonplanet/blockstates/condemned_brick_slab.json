@@ -1,0 +1,13 @@
+{
+    "variants":  {
+                     "type=bottom":  {
+                                         "model":  "prisonplanet:block/condemned_brick_slab"
+                                     },
+                     "type=top":  {
+                                      "model":  "prisonplanet:block/condemned_brick_slab_top"
+                                  },
+                     "type=double":  {
+                                         "model":  "prisonplanet:block/condemned_brick_slab_double"
+                                     }
+                 }
+}

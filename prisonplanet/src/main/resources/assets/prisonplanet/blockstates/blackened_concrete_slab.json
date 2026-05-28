@@ -1,0 +1,13 @@
+{
+    "variants":  {
+                     "type=bottom":  {
+                                         "model":  "prisonplanet:block/blackened_concrete_slab"
+                                     },
+                     "type=top":  {
+                                      "model":  "prisonplanet:block/blackened_concrete_slab_top"
+                                  },
+                     "type=double":  {
+                                         "model":  "prisonplanet:block/blackened_concrete_slab_double"
+                                     }
+                 }
+}

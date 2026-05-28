@@ -1,0 +1,7 @@
+{
+    "variants":  {
+                     "":  {
+                              "model":  "prisonplanet:block/ferric_scrap_ore"
+                          }
+                 }
+}

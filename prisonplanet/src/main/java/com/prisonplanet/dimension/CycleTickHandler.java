@@ -8,8 +8,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 /**
- * Ticks the Prison Planet cycle every server tick and syncs the dimension's
- * daytime so the sky reflects the current phase.
+ * Observes world time as an eight-day Condemned cycle with four equal phases.
  */
 @EventBusSubscriber(modid = "prisonplanet", bus = EventBusSubscriber.Bus.GAME)
 public final class CycleTickHandler {
@@ -23,11 +22,8 @@ public final class CycleTickHandler {
 
         PrisonPlanetSavedData data = PrisonPlanetSavedData.getOrCreate(level);
         CyclePhase previousPhase = data.getCurrentPhase();
-        data.tick();
+        data.synchronizeToVisibleDayTime(level.getDayTime());
         CyclePhase currentPhase = data.getCurrentPhase();
-
-        // Map 192,000-tick cycle to 24,000 vanilla sky ticks for skybox rendering
-        level.setDayTime(data.getCycleTick() / 8L);
 
         if (previousPhase != currentPhase) {
             NeoForge.EVENT_BUS.post(new PhaseTransitionEvent(level, previousPhase, currentPhase));

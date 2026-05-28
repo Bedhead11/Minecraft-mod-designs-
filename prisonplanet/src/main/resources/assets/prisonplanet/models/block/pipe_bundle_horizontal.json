@@ -1,0 +1,7 @@
+{
+    "parent":  "minecraft:block/cube_column",
+    "textures":  {
+                     "side":  "prisonplanet:block/pipe_bundle_side",
+                     "end":  "prisonplanet:block/pipe_bundle_top"
+                 }
+}

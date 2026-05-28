@@ -1,0 +1,24 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "building",
+    "pattern":  [
+                    "MGM",
+                    "GCG",
+                    "MGM"
+                ],
+    "key":  {
+                "M":  {
+                          "item":  "prisonplanet:condemned_metal_plate"
+                      },
+                "G":  {
+                          "item":  "minecraft:glass_pane"
+                      },
+                "C":  {
+                          "item":  "prisonplanet:glacial_shard"
+                      }
+            },
+    "result":  {
+                   "id":  "prisonplanet:soul_beacon_lamp",
+                   "count":  1
+               }
+}

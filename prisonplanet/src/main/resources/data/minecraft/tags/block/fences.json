@@ -1,0 +1,9 @@
+{
+    "replace":  false,
+    "values":  [
+                   "prisonplanet:cable_fence",
+                   "prisonplanet:prison_fence",
+                   "prisonplanet:reinforced_fence",
+                   "prisonplanet:rusted_fence"
+               ]
+}

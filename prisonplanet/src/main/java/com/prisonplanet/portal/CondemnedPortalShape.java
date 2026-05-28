@@ -9,163 +9,150 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Utility class that checks for a valid Netherite Block frame and fills the interior
- * with Condemned Portal blocks.
- *
- * Frame block: Blocks.NETHERITE_BLOCK
- * Interior min size: 2 wide x 3 tall
- * Interior max size: 21 wide x 21 tall
- * Checked on both X and Z axes.
+ * Validates and creates Nether-style portal rectangles using Netherite frames.
+ * Corners are optional, so a 2 x 3 portal needs ten frame blocks.
  */
 public final class CondemnedPortalShape {
-
-    private static final int MIN_WIDTH  = 2;
+    private static final int MIN_WIDTH = 2;
     private static final int MIN_HEIGHT = 3;
-    private static final int MAX_WIDTH  = 21;
+    private static final int MAX_WIDTH = 21;
     private static final int MAX_HEIGHT = 21;
 
     private CondemnedPortalShape() {}
 
-    /**
-     * Attempts to find a valid Netherite Block frame around {@code pos} and fill
-     * the interior with Condemned Portal blocks.
-     *
-     * @return true if a portal was spawned
-     */
     public static boolean trySpawnPortal(LevelAccessor level, BlockPos pos) {
-        // Try X axis (portal faces east/west, frame extends along X and Y)
-        if (tryAxis(level, pos, Direction.Axis.X)) return true;
-        // Try Z axis (portal faces north/south, frame extends along Z and Y)
-        return tryAxis(level, pos, Direction.Axis.Z);
+        return tryAxis(level, pos, Direction.Axis.X, false)
+                || tryAxis(level, pos, Direction.Axis.Z, false);
     }
 
-    private static boolean tryAxis(LevelAccessor level, BlockPos startPos, Direction.Axis axis) {
-        // Directions along the horizontal axis and always up
-        Direction forward = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
+    public static boolean isCompletePortal(LevelAccessor level, BlockPos pos, Direction.Axis axis) {
+        return tryAxis(level, pos, axis, true);
+    }
+
+    public static void createMinimumPortal(LevelAccessor level, BlockPos innerBottom, Direction.Axis axis) {
+        Direction horizontal = horizontal(axis);
+        for (int width = 0; width < MIN_WIDTH; width++) {
+            level.setBlock(innerBottom.below().relative(horizontal, width), Blocks.NETHERITE_BLOCK.defaultBlockState(), 3);
+            level.setBlock(innerBottom.above(MIN_HEIGHT).relative(horizontal, width), Blocks.NETHERITE_BLOCK.defaultBlockState(), 3);
+        }
+        for (int height = 0; height < MIN_HEIGHT; height++) {
+            level.setBlock(innerBottom.above(height).relative(horizontal, -1), Blocks.NETHERITE_BLOCK.defaultBlockState(), 3);
+            level.setBlock(innerBottom.above(height).relative(horizontal, MIN_WIDTH), Blocks.NETHERITE_BLOCK.defaultBlockState(), 3);
+        }
+        fillInterior(level, innerBottom, MIN_WIDTH, MIN_HEIGHT, axis);
+    }
+
+    private static boolean tryAxis(LevelAccessor level, BlockPos startPos, Direction.Axis axis, boolean completeOnly) {
+        Direction forward = horizontal(axis);
         Direction backward = forward.getOpposite();
+        BlockPos innerLeft = findInnerEdge(level, startPos, backward, completeOnly);
+        BlockPos innerRight = findInnerEdge(level, startPos, forward, completeOnly);
+        if (innerLeft == null || innerRight == null) {
+            return false;
+        }
 
-        // Walk backward to find the left inner edge of the frame
-        BlockPos innerLeft = findInnerEdge(level, startPos, backward);
-        if (innerLeft == null) return false;
+        int width = getAxisCoord(innerRight, axis) - getAxisCoord(innerLeft, axis) + 1;
+        if (width < MIN_WIDTH || width > MAX_WIDTH) {
+            return false;
+        }
 
-        // Walk forward to find the right inner edge
-        BlockPos innerRight = findInnerEdge(level, startPos, forward);
-        if (innerRight == null) return false;
-
-        // Interior width computed along the horizontal axis (inclusive)
-        int width2 = getAxisCoord(innerRight, axis) - getAxisCoord(innerLeft, axis) + 1;
-        if (width2 < MIN_WIDTH || width2 > MAX_WIDTH) return false;
-
-        // Walk downward from startPos to find the bottom inner edge
-        BlockPos innerBottom = findInnerEdge(level, innerLeft, Direction.DOWN);
-        if (innerBottom == null) return false;
-
-        // Walk upward from startPos to find the top inner edge
-        BlockPos innerTop = findInnerEdge(level, innerLeft, Direction.UP);
-        if (innerTop == null) return false;
+        BlockPos innerBottom = findInnerEdge(level, innerLeft, Direction.DOWN, completeOnly);
+        BlockPos innerTop = findInnerEdge(level, innerLeft, Direction.UP, completeOnly);
+        if (innerBottom == null || innerTop == null) {
+            return false;
+        }
 
         int height = innerTop.getY() - innerBottom.getY() + 1;
-        if (height < MIN_HEIGHT || height > MAX_HEIGHT) return false;
+        if (height < MIN_HEIGHT || height > MAX_HEIGHT
+                || !isValidFrame(level, innerBottom, width, height, axis)
+                || !isInteriorValid(level, innerBottom, width, height, axis, completeOnly)) {
+            return false;
+        }
 
-        // Verify the frame is complete
-        if (!isValidFrame(level, innerBottom, innerLeft, width2, height, axis)) return false;
-
-        // Verify the interior is all air/replaceable
-        if (!isInteriorClear(level, innerBottom, innerLeft, width2, height, axis)) return false;
-
-        // Fill interior with portal blocks
-        fillInterior(level, innerBottom, innerLeft, width2, height, axis);
+        if (!completeOnly) {
+            fillInterior(level, innerBottom, width, height, axis);
+        }
         return true;
     }
 
-    /** Walk in the given direction until we hit a Netherite Block (frame). Return the last non-frame pos. */
-    private static BlockPos findInnerEdge(LevelAccessor level, BlockPos start, Direction dir) {
+    private static BlockPos findInnerEdge(
+            LevelAccessor level, BlockPos start, Direction direction, boolean allowPortal) {
         BlockPos current = start;
-        int maxSteps = MAX_WIDTH + 2;
+        int maxSteps = direction.getAxis() == Direction.Axis.Y ? MAX_HEIGHT + 2 : MAX_WIDTH + 2;
         for (int i = 0; i <= maxSteps; i++) {
             BlockState state = level.getBlockState(current);
             if (state.is(Blocks.NETHERITE_BLOCK)) {
-                // We hit the frame — the inner edge is one step back
-                return i == 0 ? null : current.relative(dir.getOpposite());
+                return i == 0 ? null : current.relative(direction.getOpposite());
             }
-            if (!state.canBeReplaced() && !state.isAir()) {
-                return null; // Blocked by something that isn't air or frame
+            if (!isInteriorBlock(state, allowPortal)) {
+                return null;
             }
-            current = current.relative(dir);
+            current = current.relative(direction);
         }
-        return null; // No frame found within range
+        return null;
     }
 
-    private static boolean isValidFrame(LevelAccessor level, BlockPos innerBottom, BlockPos innerLeft,
-                                         int width, int height, Direction.Axis axis) {
-        Direction horizontal = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
-
-        // Bottom row (y = innerBottom.y - 1)
-        int frameY = innerBottom.getY() - 1;
-        BlockPos frameCornerBL = new BlockPos(innerLeft.getX(), frameY, innerLeft.getZ());
-        for (int w = -1; w <= width; w++) {
-            BlockPos p = frameCornerBL.relative(horizontal, w);
-            if (!level.getBlockState(p).is(Blocks.NETHERITE_BLOCK)) return false;
+    private static boolean isValidFrame(
+            LevelAccessor level, BlockPos innerBottom, int width, int height, Direction.Axis axis) {
+        Direction horizontal = horizontal(axis);
+        for (int offset = 0; offset < width; offset++) {
+            if (!level.getBlockState(innerBottom.below().relative(horizontal, offset)).is(Blocks.NETHERITE_BLOCK)
+                    || !level.getBlockState(innerBottom.above(height).relative(horizontal, offset)).is(Blocks.NETHERITE_BLOCK)) {
+                return false;
+            }
         }
-
-        // Top row (y = innerBottom.y + height)
-        int topFrameY = innerBottom.getY() + height;
-        BlockPos frameCornerTL = new BlockPos(innerLeft.getX(), topFrameY, innerLeft.getZ());
-        for (int w = -1; w <= width; w++) {
-            BlockPos p = frameCornerTL.relative(horizontal, w);
-            if (!level.getBlockState(p).is(Blocks.NETHERITE_BLOCK)) return false;
-        }
-
-        // Left column and right column
-        for (int h = 0; h < height; h++) {
-            // Left side (one block outside innerLeft)
-            BlockPos leftFrame = new BlockPos(innerLeft.getX(), innerBottom.getY() + h, innerLeft.getZ())
-                    .relative(horizontal, -1);
-            if (!level.getBlockState(leftFrame).is(Blocks.NETHERITE_BLOCK)) return false;
-
-            // Right side (one block outside innerRight)
-            BlockPos rightFrame = new BlockPos(innerLeft.getX(), innerBottom.getY() + h, innerLeft.getZ())
-                    .relative(horizontal, width);
-            if (!level.getBlockState(rightFrame).is(Blocks.NETHERITE_BLOCK)) return false;
-        }
-
-        return true;
-    }
-
-    private static boolean isInteriorClear(LevelAccessor level, BlockPos innerBottom, BlockPos innerLeft,
-                                            int width, int height, Direction.Axis axis) {
-        Direction horizontal = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
-        for (int h = 0; h < height; h++) {
-            for (int w = 0; w < width; w++) {
-                BlockPos p = new BlockPos(innerLeft.getX(), innerBottom.getY() + h, innerLeft.getZ())
-                        .relative(horizontal, w);
-                BlockState state = level.getBlockState(p);
-                if (!state.isAir() && !state.canBeReplaced()) return false;
+        for (int offset = 0; offset < height; offset++) {
+            BlockPos row = innerBottom.above(offset);
+            if (!level.getBlockState(row.relative(horizontal, -1)).is(Blocks.NETHERITE_BLOCK)
+                    || !level.getBlockState(row.relative(horizontal, width)).is(Blocks.NETHERITE_BLOCK)) {
+                return false;
             }
         }
         return true;
     }
 
-    private static void fillInterior(LevelAccessor level, BlockPos innerBottom, BlockPos innerLeft,
-                                      int width, int height, Direction.Axis axis) {
-        Direction horizontal = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
-        BlockState portalState = ModBlocks.CONDEMNED_PORTAL.get().defaultBlockState()
+    private static boolean isInteriorValid(
+            LevelAccessor level, BlockPos innerBottom, int width, int height, Direction.Axis axis, boolean completeOnly) {
+        Direction horizontal = horizontal(axis);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                BlockState state = level.getBlockState(innerBottom.above(y).relative(horizontal, x));
+                if (completeOnly) {
+                    if (!state.is(ModBlocks.CONDEMNED_PORTAL.get())
+                            || state.getValue(CondemnedPortalBlock.AXIS) != axis) {
+                        return false;
+                    }
+                } else if (!isInteriorBlock(state, false)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean isInteriorBlock(BlockState state, boolean allowPortal) {
+        return state.isAir()
+                || state.canBeReplaced()
+                || allowPortal && state.is(ModBlocks.CONDEMNED_PORTAL.get());
+    }
+
+    private static void fillInterior(
+            LevelAccessor level, BlockPos innerBottom, int width, int height, Direction.Axis axis) {
+        Direction horizontal = horizontal(axis);
+        BlockState portal = ModBlocks.CONDEMNED_PORTAL.get().defaultBlockState()
                 .setValue(CondemnedPortalBlock.AXIS, axis);
-
-        for (int h = 0; h < height; h++) {
-            for (int w = 0; w < width; w++) {
-                BlockPos p = new BlockPos(innerLeft.getX(), innerBottom.getY() + h, innerLeft.getZ())
-                        .relative(horizontal, w);
-                level.setBlock(p, portalState, 3);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                level.setBlock(innerBottom.above(y).relative(horizontal, x), portal, 3);
             }
         }
+    }
+
+    private static Direction horizontal(Direction.Axis axis) {
+        return axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
     }
 
     private static int getAxisCoord(BlockPos pos, Direction.Axis axis) {
-        return switch (axis) {
-            case X -> pos.getX();
-            case Y -> pos.getY();
-            case Z -> pos.getZ();
-        };
+        return axis == Direction.Axis.X ? pos.getX() : pos.getZ();
     }
 }

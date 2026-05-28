@@ -1,0 +1,9 @@
+{
+    "replace":  false,
+    "values":  [
+                   "prisonplanet:deepslate_ember_crystal_ore",
+                   "prisonplanet:deepslate_glacial_shard_ore",
+                   "prisonplanet:ember_crystal_ore",
+                   "prisonplanet:glacial_shard_ore"
+               ]
+}

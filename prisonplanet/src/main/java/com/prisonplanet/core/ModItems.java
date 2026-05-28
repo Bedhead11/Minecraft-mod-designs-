@@ -2,7 +2,9 @@ package com.prisonplanet.core;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -36,6 +38,11 @@ public final class ModItems {
     public static final DeferredHolder<Item, BlockItem> ASHEN_SEDIMENT =
             ITEMS.register("ashen_sediment", () ->
                     new BlockItem(ModBlocks.ASHEN_SEDIMENT.get(), new Item.Properties()));
+
+    public static final DeferredHolder<Item, BucketItem> SUSPENDED_BRINE_BUCKET =
+            ITEMS.register("suspended_brine_bucket", () ->
+                    new BucketItem(ModFluids.SUSPENDED_BRINE.get(),
+                            new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
 
     // --- Brick/wall (6) ---
     public static final DeferredHolder<Item, BlockItem> CONDEMNED_BRICKS =

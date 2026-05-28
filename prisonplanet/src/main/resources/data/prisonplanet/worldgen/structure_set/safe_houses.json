@@ -1,0 +1,18 @@
+{
+  "structures": [
+    {
+      "structure": "prisonplanet:safe_house",
+      "weight": 3
+    },
+    {
+      "structure": "prisonplanet:underground_safe_house",
+      "weight": 2
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 7,
+    "separation": 2,
+    "salt": 54179320
+  }
+}

@@ -1,0 +1,16 @@
+{
+    "variants":  {
+                     "axis=y":  {
+                                    "model":  "prisonplanet:block/cracked_support_column"
+                                },
+                     "axis=z":  {
+                                    "model":  "prisonplanet:block/cracked_support_column_horizontal",
+                                    "x":  90
+                                },
+                     "axis=x":  {
+                                    "model":  "prisonplanet:block/cracked_support_column_horizontal",
+                                    "x":  90,
+                                    "y":  90
+                                }
+                 }
+}

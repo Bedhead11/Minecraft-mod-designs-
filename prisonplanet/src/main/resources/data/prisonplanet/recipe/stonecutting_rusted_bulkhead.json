@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:condemned_bricks"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:rusted_bulkhead",
+                   "count":  1
+               }
+}

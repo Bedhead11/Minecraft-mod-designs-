@@ -1,0 +1,8 @@
+{
+    "parent":  "minecraft:block/inner_stairs",
+    "textures":  {
+                     "bottom":  "prisonplanet:block/blackened_concrete_stairs",
+                     "top":  "prisonplanet:block/blackened_concrete_stairs",
+                     "side":  "prisonplanet:block/blackened_concrete_stairs"
+                 }
+}

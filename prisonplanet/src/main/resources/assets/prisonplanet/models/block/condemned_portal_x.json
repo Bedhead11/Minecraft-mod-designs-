@@ -1,3 +1,7 @@
 {
-  "parent": "minecraft:block/nether_portal_ns"
+  "parent": "minecraft:block/nether_portal_ns",
+  "textures": {
+    "particle": "prisonplanet:block/condemned_portal",
+    "portal": "prisonplanet:block/condemned_portal"
+  }
 }

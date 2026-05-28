@@ -1,0 +1,7 @@
+{
+    "parent":  "minecraft:block/cube_column",
+    "textures":  {
+                     "side":  "prisonplanet:block/coolant_pipe_side",
+                     "end":  "prisonplanet:block/coolant_pipe_top"
+                 }
+}

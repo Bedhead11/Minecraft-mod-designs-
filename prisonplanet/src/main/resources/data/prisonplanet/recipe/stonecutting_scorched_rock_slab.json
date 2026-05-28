@@ -1,0 +1,10 @@
+{
+    "type":  "minecraft:stonecutting",
+    "ingredient":  {
+                       "item":  "prisonplanet:scorched_rock"
+                   },
+    "result":  {
+                   "id":  "prisonplanet:scorched_rock_slab",
+                   "count":  1
+               }
+}

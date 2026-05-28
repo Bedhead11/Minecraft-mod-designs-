@@ -1,0 +1,9 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "prisonplanet:block/suspended_brine"
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+    "parent":  "minecraft:block/template_wall_side_tall",
+    "textures":  {
+                     "wall":  "prisonplanet:block/ashen_shale_wall"
+                 }
+}

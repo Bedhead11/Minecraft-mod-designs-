@@ -1,0 +1,6 @@
+{
+    "parent":  "minecraft:block/wall_inventory",
+    "textures":  {
+                     "wall":  "prisonplanet:block/blackened_concrete_wall"
+                 }
+}

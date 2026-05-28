@@ -1,0 +1,56 @@
+{
+  "carvers": {},
+  "downfall": 1.0,
+  "effects": {
+    "fog_color": 2103315,
+    "mood_sound": {
+      "block_search_extent": 8,
+      "offset": 2.0,
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 6000
+    },
+    "sky_color": 3212298,
+    "water_color": 2691355,
+    "water_fog_color": 986895
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ],
+  "has_precipitation": true,
+  "spawn_costs": {},
+  "spawners": {
+    "ambient": [],
+    "axolotls": [],
+    "creature": [
+      { "type": "prisonplanet:ash_grazer", "weight": 24, "minCount": 2, "maxCount": 4 },
+      { "type": "prisonplanet:glacial_drifter", "weight": 10, "minCount": 1, "maxCount": 2 },
+      { "type": "prisonplanet:salvage_porter", "weight": 12, "minCount": 1, "maxCount": 3 }
+    ],
+    "misc": [],
+    "monster": [
+      { "type": "prisonplanet:ash_stalker", "weight": 44, "minCount": 1, "maxCount": 3 },
+      { "type": "prisonplanet:chain_wretch", "weight": 30, "minCount": 1, "maxCount": 2 },
+      { "type": "prisonplanet:frost_wraith", "weight": 16, "minCount": 1, "maxCount": 2 },
+      { "type": "prisonplanet:vent_crawler", "weight": 34, "minCount": 1, "maxCount": 3 },
+      { "type": "prisonplanet:cage_phantom", "weight": 18, "minCount": 1, "maxCount": 2 },
+      { "type": "prisonplanet:cinder_hound", "weight": 27, "minCount": 1, "maxCount": 3 },
+      { "type": "prisonplanet:rust_sentinel", "weight": 18, "minCount": 1, "maxCount": 2 },
+      { "type": "prisonplanet:slag_brute", "weight": 11, "minCount": 1, "maxCount": 1 },
+      { "type": "prisonplanet:furnace_warden", "weight": 5, "minCount": 1, "maxCount": 1 }
+    ],
+    "underground_water_creature": [],
+    "water_ambient": [],
+    "water_creature": []
+  },
+  "temperature": 0.0
+}

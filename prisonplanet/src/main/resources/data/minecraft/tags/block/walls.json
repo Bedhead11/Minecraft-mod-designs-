@@ -1,0 +1,11 @@
+{
+    "replace":  false,
+    "values":  [
+                   "prisonplanet:ashen_shale_wall",
+                   "prisonplanet:blackened_concrete_wall",
+                   "prisonplanet:condemned_brick_wall",
+                   "prisonplanet:condemned_tile_wall",
+                   "prisonplanet:reinforced_wall",
+                   "prisonplanet:scorched_rock_wall"
+               ]
+}
